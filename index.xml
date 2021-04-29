@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Kishore Ganesh</title>
+    <link>https://kishore-ganesh.github.io/</link>
+    <description>Recent content on Kishore Ganesh</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 29 Apr 2021 01:40:00 +0530</lastBuildDate><atom:link href="https://kishore-ganesh.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Taking away control: The dumb programmer and the smart compiler</title>
+      <link>https://kishore-ganesh.github.io/post/programming_languages/</link>
+      <pubDate>Thu, 29 Apr 2021 01:40:00 +0530</pubDate>
+      
+      <guid>https://kishore-ganesh.github.io/post/programming_languages/</guid>
+      <description>Good compilers prevent you from shooting yourself in the foot. Today, you have a wide assortment of programming languages to choose from, you can have your pick of paradigm. As a brief detour, the perspective of programmers comes full circle as they move from beginner to slightly experienced to intermediate.
+The beginner is deathly afraid of the differences between programming languages. In the beginning, they stick to one language out of the fear of learning something new.</description>
+    </item>
+    
+    <item>
+      <title>bootup</title>
+      <link>https://kishore-ganesh.github.io/post/bootup/</link>
+      <pubDate>Thu, 29 Apr 2021 00:58:56 +0530</pubDate>
+      
+      <guid>https://kishore-ganesh.github.io/post/bootup/</guid>
+      <description>A long, long time back, in a galaxy far far away, I was doing the same thing I&amp;rsquo;m doing right now. Booting up a blog. Genesis. Creation. My older blogs are many years behind me, and now a new journey begins.
+I have witnessed a stark change in how I view blogging, or how I view writing in general over my 4 years of college. More on that in a later post, but I&amp;rsquo;m excited to embark on this new journey, incorporating the many insights hidden away in some deep dark corner of my Google Keep.</description>
+    </item>
+    
+    <item>
+      <title></title>
+      <link>https://kishore-ganesh.github.io/about/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://kishore-ganesh.github.io/about/</guid>
+      <description>Hi I&amp;rsquo;m Kishore Ganesh. I love everything about Computer Science, from nifty discrete math proofs to more concrete systems-domains like Operating System to visual domains like Computer Graphics. I love building projects, especially in domains I&amp;rsquo;m unfamiliar with.
+One of my favorite things to do is to dive into a new topic and spend multiple weeks building up expertise on it.
+My most notable projects are:
+  Jack Toolchain: Wishing to know how computers work on a low level, I followed the NAND2Tetris book and built a computer from scratch in a hardware simulator, along with a two-phase compiler and assembler for the same computer.</description>
+    </item>
+    
+  </channel>
+</rss>
