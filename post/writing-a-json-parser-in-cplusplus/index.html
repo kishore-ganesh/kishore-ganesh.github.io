@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+
+<html lang="en-us">
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="format-detection" content="telephone=no"/>
+
+    <title>Writing a simple JSON Parser from scratch in C&#43;&#43; | Kishore Ganesh</title>
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#FF3DB4">
+    <meta name="theme-color" content="#ffffff">
+
+    
+    
+    
+    <link rel="stylesheet" href="https://kishoreganesh.com/css/main.min.15431d6c334f65809fe2bc329da3f2c81c6e3027ab1e25b56afb2bb85fa7fd64.css"/>
+
+    
+    
+    
+
+    
+    
+ 
+    
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-176784258-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+</head>
+
+    <body>
+        
+<nav>
+  <header>
+    <div class="site-title">
+        <a href="/">Kishore Ganesh</a>
+    </div>  
+</header>
+
+  <div class="nav-menu">
+  
+    <a class="color-link nav-link" href="/about/">About</a>
+  
+    <a class="color-link nav-link" href="/resume.pdf">Resume</a>
+  
+  <a class="color-link nav-link" href="https://kishoreganesh.com/index.xml" target="_blank" rel="noopener" type="application/rss+xml">RSS</a>
+</div>
+<footer class="footer">
+	<div class="social-icons">
+        
+    <a class="social-icon" href="mailto:kishore2912000@gmail.com" target="_blank" rel="noopener" title="Email">
+        <svg width="28px" height="28px" viewBox="0 0 28 28" version="1.1" fill="#ABABAB" xmlns="https://www.w3.org/2000/svg" xmlns:xlink="https://www.w3.org/1999/xlink">
+            <path d="M25.2794292,5.59128519 L14,16.8707144 L2.72057081,5.59128519 C3.06733103,5.30237414 3.51336915,5.12857603 4,5.12857603 L24,5.12857603 C24.4866308,5.12857603 24.932669,5.30237414 25.2794292,5.59128519 Z M25.9956978,6.99633695 C25.998551,7.04004843 26,7.08414302 26,7.12857603 L26,20.871424 C26,21.0798433 25.9681197,21.2808166 25.9089697,21.4697335 L18.7156355,14.2763993 L25.9956978,6.99633695 Z M24.9498374,22.6319215 C24.6672737,22.7846939 24.3437653,22.871424 24,22.871424 L4,22.871424 C3.5268522,22.871424 3.09207889,22.7071233 2.74962118,22.432463 L10.0950247,15.0870594 L13.9848068,18.9768415 L14.1878486,18.7737996 L14.2030419,18.7889929 L17.6549753,15.3370594 L24.9498374,22.6319215 Z M2.00810114,21.0526627 C2.00273908,20.9929669 2,20.9325153 2,20.871424 L2,7.12857603 C2,7.08414302 2.00144896,7.04004843 2.00430222,6.99633695 L9.03436454,14.0263993 L2.00810114,21.0526627 Z"></path>
+        </svg>
+    </a>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <a class="social-icon" href="https://linkedin.com/in/kishore-ganesh" target="_blank" rel="noopener" title="LinkedIn">
+        <svg width="28px" height="28px" viewBox="0 0 28 28" version="1.1" fill="#ABABAB" xmlns="https://www.w3.org/2000/svg" xmlns:xlink="https://www.w3.org/1999/xlink">
+            <path d="M2,3.654102 C2,2.69908141 2.79442509,1.92397846 3.77383592,1.92397846 L24.2261641,1.92397846 C25.2058917,1.92397846 26,2.69908141 26,3.654102 L26,24.3462148 C26,25.3015521 25.2058917,26.0760215 24.2261641,26.0760215 L3.77383592,26.0760215 C2.79442509,26.0760215 2,25.3015521 2,24.3465315 L2,3.65378524 L2,3.654102 Z M9.27526132,22.1415901 L9.27526132,11.2356668 L5.65030092,11.2356668 L5.65030092,22.1415901 L9.27557808,22.1415901 L9.27526132,22.1415901 Z M7.46341463,9.74691162 C8.72727273,9.74691162 9.51409566,8.90940767 9.51409566,7.86284447 C9.49033893,6.79252455 8.72727273,5.97846056 7.48748812,5.97846056 C6.24675325,5.97846056 5.43649034,6.79252455 5.43649034,7.86284447 C5.43649034,8.90940767 6.22299652,9.74691162 7.4396579,9.74691162 L7.46309788,9.74691162 L7.46341463,9.74691162 Z M11.2815965,22.1415901 L14.9062401,22.1415901 L14.9062401,16.0519481 C14.9062401,15.7263225 14.9299968,15.4000634 15.0256573,15.1675641 C15.2876148,14.5159962 15.8840672,13.8416218 16.8856509,13.8416218 C18.1970225,13.8416218 18.7218879,14.8416218 18.7218879,16.3078872 L18.7218879,22.1415901 L22.3465315,22.1415901 L22.3465315,15.8885017 C22.3465315,12.5388027 20.5584416,10.9800443 18.1735825,10.9800443 C16.2182452,10.9800443 15.3595185,12.072854 14.8824834,12.8172315 L14.9065569,12.8172315 L14.9065569,11.2359835 L11.2819132,11.2359835 C11.3291099,12.2591067 11.2815965,22.1419069 11.2815965,22.1419069 L11.2815965,22.1415901 Z"></path>
+        </svg>
+    </a>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+    
+    <a class="social-icon" href="https://github.com/kishore-ganesh" target="_blank" rel="noopener" title="GitHub">
+        <svg width="28px" height="28px" viewBox="0 0 28 28" version="1.1" fill="#ABABAB" xmlns="https://www.w3.org/2000/svg" xmlns:xlink="https://www.w3.org/1999/xlink">
+            <path d="M13.9988029,1.32087331 C6.82105037,1.32087331 1,7.14112562 1,14.3212723 C1,20.0649109 4.72454649,24.9370678 9.89038951,26.6560892 C10.5408085,26.7757983 10.7778323,26.374374 10.7778323,26.0296121 C10.7778323,25.7215609 10.7666595,24.9035493 10.760275,23.8189856 C7.14426471,24.6042767 6.38131925,22.0760223 6.38131925,22.0760223 C5.78995672,20.5740732 4.93762853,20.1742451 4.93762853,20.1742451 C3.75729765,19.3682044 5.02701126,19.3841656 5.02701126,19.3841656 C6.33183953,19.4759425 7.01817121,20.7241085 7.01817121,20.7241085 C8.17775254,22.7104801 10.0611744,22.1366749 10.8017741,21.8038838 C10.919887,20.9643246 11.2558703,20.3913175 11.6269683,20.066507 C8.74038491,19.7385043 5.70536235,18.6228163 5.70536235,13.6413251 C5.70536235,12.2223743 6.21213051,11.0611968 7.04370914,10.1530044 C6.90963504,9.82420367 6.46351945,8.50181809 7.17139875,6.71256734 C7.17139875,6.71256734 8.26234691,6.36301702 10.7459099,8.04532771 C11.78259,7.75642995 12.8950858,7.61277914 14.000399,7.60719272 C15.1049142,7.61277914 16.2166119,7.75642995 17.2548881,8.04532771 C19.736855,6.36301702 20.8262071,6.71256734 20.8262071,6.71256734 C21.5356825,8.50181809 21.0895669,9.82420367 20.9562909,10.1530044 C21.7894656,11.0611968 22.2922435,12.2223743 22.2922435,13.6413251 C22.2922435,18.6355852 19.2524325,19.734514 16.3570705,20.0561322 C16.8231376,20.4575564 17.2389269,21.2508282 17.2389269,22.4638795 C17.2389269,24.2012564 17.2229657,25.603448 17.2229657,26.0296121 C17.2229657,26.3775663 17.4575954,26.7821827 18.116793,26.6552912 C23.2786458,24.9322794 27,20.0633148 27,14.3212723 C27,7.14112562 21.1789496,1.32087331 13.9988029,1.32087331"></path>
+        </svg>
+    </a>
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+</div>
+
+
+
+
+	<p><a href="https://github.com/kimcc/hugo-theme-noteworthy" target="_blank" rel="noopener">Noteworthy theme</a></p>
+	<p><a href="https://gohugo.io" target="_blank" rel="noopener">Built with Hugo</a></p>
+
+	<script src="https://kishoreganesh.com/js/main.min.fa5c2b23e07b5d9bfad267a52b4b24fdb053e6fb7524993383594926a3ac270c.js" integrity="sha256-+lwrI+B7XZv60melK0sk/bBT5vt1JJkzg1lJJqOsJww=" crossorigin="anonymous"></script>
+</footer>
+</nav>
+
+        <div id="content" class="content-container">
+        
+
+<h1 class="post-title">Writing a simple JSON Parser from scratch in C&#43;&#43;</h1>
+    
+    <time>April 30, 2021</time>
+    
+    <div>
+        <p>
+        <p>JSON is one of the most common data interchange formats there is. Thankfully, it is also a pretty simple one. I had written a JSON parser in C++ sometime back, and whilst making it I came across a few decisions that were more involved than I thought they would be. So I have decided to write an article around that JSON Parser. While JSON Parsing is simple, writing one would definitely be useful to build more complex parsers, since the general principles are still present.</p>
+<p>I would also like to clarify that this is not in full compliance with the JSON spec. It doesn&rsquo;t handle stuff like escapes in strings, but the basics are there. It is also probably not very efficient, since I wrote most parts with an intention of them being easier to write than for them to be the fastest possible implementation.In addition to this, it <em><strong>expects</strong></em> a correct input JSON and does not give syntax errors.</p>
+<h2 id="the-json-spec">The JSON spec</h2>
+<p>Before starting anywhere, let us pull up the JSON spec.</p>
+<img src="/json_spec.png" width="600">  
+<p>As you can see, it is quite simple. The simple types are:</p>
+<ol>
+<li>Number</li>
+<li>String</li>
+<li>True</li>
+<li>False</li>
+<li>Null</li>
+</ol>
+<p>The composite types are:</p>
+<ol>
+<li>Array - A list of JSON values (Note that array itself is a JSON value so you can have an array of arrays)</li>
+<li>Object - It is a set of key-value pairs where you can retrieve any value using its corresponding key.</li>
+</ol>
+<h2 id="choosing-a-structure-for-the-jsonnode-type">Choosing a structure for the JSONNode type</h2>
+<p>The first decision to make when writing a JSON parser is the structure of the JSONNode type which will be holding valid JSON values. I&rsquo;ll try to explain some possible approaches and see which one is more appropriate.</p>
+<p>What do we want from the JSONNode type? We want it to be as space efficient as possible.</p>
+<h3 id="the-very-naive-approach">The very naive approach</h3>
+<p>A naive approach would be:
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">JSONNodeMostNaive</span> {
+    JSONObject object;
+    JSONList list;
+    std<span style="color:#f92672">::</span>string s;
+    <span style="color:#66d9ef">float</span> fValue;
+    <span style="color:#66d9ef">bool</span> bValue;
+}
+</code></pre></div>
+This would work, but it is grossly inefficient. Each of these types takes some memory, and for each JSONValue, you have an overhead of the other values.</p>
+<p>The size of an empty JSON value would be: <em><strong>112 bytes</strong></em>.</p>
+<h3 id="the-naive-approach">The naive approach</h3>
+<p>An approach that is a bit better would be to use pointers, so instead of having to allocate size for each class type, we&rsquo;ll just have to allocate a constant space for each pointer.</p>
+<p><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">JSONNodeNaive</span> {
+    JSONObject <span style="color:#f92672">*</span>object;
+    JSONList <span style="color:#f92672">*</span>list;
+    std<span style="color:#f92672">::</span>string <span style="color:#f92672">*</span>s;
+    <span style="color:#66d9ef">float</span> fValue;
+    <span style="color:#66d9ef">bool</span> bValue;
+};
+</code></pre></div>
+An empty object has size: <em><strong>32 bytes</strong></em>, a lot better!</p>
+<h3 id="generics-not">Generics? Not.</h3>
+<p>One of the incorrect paths that you might go down is to think about using generics. At least I&rsquo;m not aware of a way to use generics in this situation.</p>
+<p>You might to think to do generics as:
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#66d9ef">template</span><span style="color:#f92672">&lt;</span>type T<span style="color:#f92672">&gt;</span>
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">jsonArray</span>{
+    vector<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span>;
+}
+
+<span style="color:#66d9ef">template</span><span style="color:#f92672">&lt;</span>type T<span style="color:#f92672">&gt;</span>
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">jsonObject</span>{
+    map<span style="color:#f92672">&lt;</span>string, T<span style="color:#f92672">&gt;</span>;
+}
+</code></pre></div>
+The issue with this is that the compiler generates a copy of the struct for each type with the name mangled.</p>
+<p>Something like <code>struct jsonObject_type_float</code>.</p>
+<p>This means that for each type there is a <em><strong>separate jsonObject</strong></em>  type and a <em><strong>separate jsonArray</strong></em> <em><strong>type</strong></em>.</p>
+<p>So say you have a jsonArray like:
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript">[<span style="color:#ae81ff">123</span>, <span style="color:#e6db74">&#34;abc&#34;</span>]
+</code></pre></div></p>
+<p>This is a perfectly legal Javascript array. How would you represent this using our jsonArray struct declared above? You can&rsquo;t, since it is parametrized by type T which can be only one type.</p>
+<p>When instantiating jsonArray, you&rsquo;ll have to tell the compiler what type you&rsquo;re parametrizing it with like:</p>
+<p><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++">jsonArray<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span>
+</code></pre></div>
+or
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++">jsonArray<span style="color:#f92672">&lt;</span>string<span style="color:#f92672">&gt;</span>
+</code></pre></div>
+There is no way for T to be both int and string. But we want T to be one of all possible JSON value types. This is one of those gotchas for those who misunderstand generics (like me). Generics are a way to save time when writing code so that you do not have to write similar implementations for each type. They&rsquo;re not a way to have the sort of dynamic behavior we&rsquo;re expecting (to store values of multiple types within the same array).</p>
+<h3 id="my-choice-the-union">My choice: The Union</h3>
+<p>Coming back to our JSON parser, the way I went with is:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">JSONNode</span> {
+  <span style="color:#66d9ef">enum</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Type</span> { OBJECT, LIST, STRING, NUMBER, BOOLEAN, NULL_TYPE}; 
+  <span style="color:#66d9ef">union</span> <span style="color:#a6e22e">Values</span> {
+    JSONObject <span style="color:#f92672">*</span>object;
+    JSONList <span style="color:#f92672">*</span>list;
+    std<span style="color:#f92672">::</span>string <span style="color:#f92672">*</span>s;
+    <span style="color:#66d9ef">float</span> fValue;
+    <span style="color:#66d9ef">bool</span> bValue;
+  } values;
+  Type type;
+}
+</code></pre></div>
+<p>Here, this is similar to our second naive implementation with one optimization: We&rsquo;re using a union. It&rsquo;ll take up space of the largest member. Unlike before, we won&rsquo;t be wasting space by needlessly storing the other types.
+<em><strong>NOTE</strong></em>: This is not the canonical C++ way to do this. For that, you can check out <a href="https://en.cppreference.com/w/cpp/utility/variant">std::variant</a> which is a typesafe union.</p>
+<p>The size of this is <em><strong>16 bytes</strong></em>.</p>
+<p>Sizes of all three shown:
+<img src="/test_sizes.png" alt=""></p>
+<p>You might be wondering what JSONObject and JSONList types are.
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#66d9ef">using</span> JSONObject <span style="color:#f92672">=</span> std<span style="color:#f92672">::</span>map<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>string, std<span style="color:#f92672">::</span>shared_ptr<span style="color:#f92672">&lt;</span>JSONNode<span style="color:#f92672">&gt;&gt;</span>;
+<span style="color:#66d9ef">using</span> JSONList <span style="color:#f92672">=</span> std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>shared_ptr<span style="color:#f92672">&lt;</span>JSONNode<span style="color:#f92672">&gt;&gt;</span>;
+</code></pre></div></p>
+<p>As you can see, they&rsquo;re just type declarations over standard types.</p>
+<p>To access, I have a bunch of utility functions:</p>
+<ul>
+<li>auto returnObject()</li>
+<li>auto returnList()</li>
+<li>auto returnString()</li>
+<li>auto returnFloat();</li>
+</ul>
+<p>Let us see the implementation for returnObject(), the rest are quite similar:
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#66d9ef">auto</span> <span style="color:#a6e22e">returnObject</span>() {
+    <span style="color:#66d9ef">if</span> (type <span style="color:#f92672">==</span> Type<span style="color:#f92672">::</span>OBJECT) {
+        <span style="color:#66d9ef">return</span> <span style="color:#f92672">*</span>values.object;
+    }
+    <span style="color:#66d9ef">throw</span> std<span style="color:#f92672">::</span>logic_error(<span style="color:#e6db74">&#34;Improper return&#34;</span>);
+}
+</code></pre></div></p>
+<p>It doesn&rsquo;t do much, just some bookkeeping to inform the user whether they&rsquo;re returning the wrong type and an error thrown i not.</p>
+<p>I also have the corresponding setter functions, let us look at setObject:
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">setObject</span>(JSONObject <span style="color:#f92672">*</span>object) {
+    <span style="color:#66d9ef">this</span><span style="color:#f92672">-&gt;</span>values.object <span style="color:#f92672">=</span> object;
+    type <span style="color:#f92672">=</span> Type<span style="color:#f92672">::</span>OBJECT;
+}
+</code></pre></div></p>
+<p>The only issue with this that I perceive is that this puts the burden on the end user to issue the correct function call (i.e they have to know when to call returnObject() instead of returnList()).</p>
+<p>You can remove this burden by having some sort of dynamic dispatch but that brings with it its own hurdles. Although the function will be called on the correct object, what set of functions would be common across all JSON value types? I&rsquo;m not sure, this is something I have to explore further, but currently I do not think that this would work. In any case, I do not think having an idea about the structure about the input is unreasonable.</p>
+<h2 id="tokenization">Tokenization</h2>
+<p>Now let us look at how we&rsquo;re going to parse. First we need to tokenize the input. What is tokenization? Well it is the next step after raw text, instead of having a raw stream of characters, you have a stream of more logical units, like strings, numbers and other symbols.</p>
+<p>The tokenizer is fairly simple, it cares about very localized regions of the input.</p>
+<p>We have an enum for denoting all possible token types:
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#66d9ef">enum</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TOKEN</span>
+{
+    CURLY_OPEN,
+    CURLY_CLOSE,
+    COLON,
+    STRING,
+    NUMBER,
+    ARRAY_OPEN,
+    ARRAY_CLOSE,
+    COMMA,
+    BOOLEAN,
+    NULL_TYPE
+};
+</code></pre></div>
+We have a token struct that encapsulates the token and its value. Tokens like ARRAY_CLOSE do not have a value, but the STRING token contains the value as the actual string.
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Token</span>
+{
+    std<span style="color:#f92672">::</span>string value;
+    TOKEN type;
+    std<span style="color:#f92672">::</span>string toString()
+}
+</code></pre></div>
+The Tokenizer class has this structure:
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Tokenizer</span> {
+ std<span style="color:#f92672">::</span>fstream file;
+ size_t prevPos;
+
+<span style="color:#66d9ef">public</span><span style="color:#f92672">:</span>
+    Tokenizer(std<span style="color:#f92672">::</span>string fileName);
+    <span style="color:#66d9ef">auto</span> <span style="color:#a6e22e">getWithoutWhiteSpace</span>();
+    <span style="color:#66d9ef">auto</span> <span style="color:#a6e22e">getToken</span>();
+    <span style="color:#66d9ef">auto</span> <span style="color:#a6e22e">hasMoreTokens</span>();
+    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">rollBackToken</span>();
+}
+</code></pre></div>
+It has a helper function getWithoutWhitespace which just gets us the next character after skipping all the whitespace and newlines.</p>
+<p><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#66d9ef">auto</span> <span style="color:#a6e22e">getWithoutWhiteSpace</span>()
+    {
+        <span style="color:#66d9ef">char</span> c <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39; &#39;</span>;
+        <span style="color:#66d9ef">while</span> ((c <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39; &#39;</span> <span style="color:#f92672">||</span> c <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;\n&#39;</span>))
+        {
+            file.get(c); <span style="color:#75715e">// check
+</span><span style="color:#75715e"></span>
+            <span style="color:#66d9ef">if</span> ((c <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39; &#39;</span> <span style="color:#f92672">||</span> c <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;\n&#39;</span>) <span style="color:#f92672">&amp;&amp;</span> <span style="color:#f92672">!</span>file.good())
+            {
+                <span style="color:#75715e">// std::cout &lt;&lt; file.eof() &lt;&lt; &#34; &#34; &lt;&lt; file.fail() &lt;&lt; std::endl;
+</span><span style="color:#75715e"></span>                <span style="color:#66d9ef">throw</span> std<span style="color:#f92672">::</span>logic_error(<span style="color:#e6db74">&#34;Ran out of tokens&#34;</span>);
+            }
+            <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>file.good())
+            {
+                <span style="color:#66d9ef">return</span> c;
+            }
+        }
+        
+        <span style="color:#66d9ef">return</span> c;
+    }
+</code></pre></div>
+We also have a helper named rollBackToken. The rollBackToken function goes back to the previous token. We store the position of the previous token in prevPos.
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">rollBackToken</span>()
+    {
+        <span style="color:#66d9ef">if</span> (file.eof())
+        {
+            file.clear();
+        }
+        file.seekg(prevPos);
+    }
+</code></pre></div></p>
+<p>The actual body of the getToken function is also fairly simple.</p>
+<p>For getToken, the logic is:</p>
+<ul>
+<li>
+<p>For characters like &lsquo;[&rsquo;, &lsquo;,&rsquo;, &lsquo;]&rsquo;, &lsquo;{&rsquo;, &lsquo;}&rsquo;, we just map it to the corressponding enum type</p>
+</li>
+<li>
+<p>The special case is when we encounter either &lsquo;&quot;&rsquo; or a number. In both cases the logical unit is the whole string or the whole number. So in case of string, we keep consuming characters till &lsquo;&quot;&rsquo; is reached and for numbers, till we run out of consecutive number characters. We then store the string / number in the &ldquo;value&rdquo; field of the token.
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"> <span style="color:#66d9ef">auto</span> <span style="color:#a6e22e">getToken</span>()
+    {
+        <span style="color:#75715e">// string buf;
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">char</span> c;
+        <span style="color:#66d9ef">if</span> (file.eof())
+        {
+            std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;Exhaused tokens&#34;</span> <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+            <span style="color:#75715e">// throw std::exception(&#34;Exhausted tokens&#34;);
+</span><span style="color:#75715e"></span>        }
+        prevPos <span style="color:#f92672">=</span> file.tellg();
+        c <span style="color:#f92672">=</span> getWithoutWhiteSpace();
+
+        <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Token</span> token;
+        <span style="color:#66d9ef">if</span> (c <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;&#34;&#39;</span>)
+        {
+            token.type <span style="color:#f92672">=</span> TOKEN<span style="color:#f92672">::</span>STRING;
+            token.value <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span>;
+            file.get(c);
+            <span style="color:#66d9ef">while</span> (c <span style="color:#f92672">!=</span> <span style="color:#e6db74">&#39;&#34;&#39;</span>)
+            {
+                token.value <span style="color:#f92672">+=</span> c;
+                file.get(c);
+            }
+        }
+        <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (c <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;{&#39;</span>)
+        {
+            token.type <span style="color:#f92672">=</span> TOKEN<span style="color:#f92672">::</span>CURLY_OPEN;
+        }
+        <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (c <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;}&#39;</span>)
+        {
+            token.type <span style="color:#f92672">=</span> TOKEN<span style="color:#f92672">::</span>CURLY_CLOSE;
+        }
+        <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (c<span style="color:#f92672">==</span><span style="color:#e6db74">&#39;-&#39;</span> <span style="color:#f92672">||</span> (c <span style="color:#f92672">&gt;=</span> <span style="color:#e6db74">&#39;0&#39;</span> <span style="color:#f92672">&amp;&amp;</span> c <span style="color:#f92672">&lt;=</span> <span style="color:#e6db74">&#39;9&#39;</span>))
+        {
+            <span style="color:#75715e">//Check if string is numeric
+</span><span style="color:#75715e"></span>            token.type <span style="color:#f92672">=</span> TOKEN<span style="color:#f92672">::</span>NUMBER;
+            token.value <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span>;
+            token.value <span style="color:#f92672">+=</span> c;
+            std<span style="color:#f92672">::</span>streampos prevCharPos <span style="color:#f92672">=</span> file.tellg();
+            <span style="color:#66d9ef">while</span> ((c<span style="color:#f92672">==</span><span style="color:#e6db74">&#39;-&#39;</span>)<span style="color:#f92672">||</span>(c <span style="color:#f92672">&gt;=</span> <span style="color:#e6db74">&#39;0&#39;</span> <span style="color:#f92672">&amp;&amp;</span> c <span style="color:#f92672">&lt;=</span> <span style="color:#e6db74">&#39;9&#39;</span>) <span style="color:#f92672">||</span> c <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;.&#39;</span>)
+            {
+                prevCharPos <span style="color:#f92672">=</span> file.tellg();
+                file.get(c);
+
+                <span style="color:#66d9ef">if</span> (file.eof())
+                {
+                    <span style="color:#66d9ef">break</span>;
+                }
+                <span style="color:#66d9ef">else</span>
+                {
+                    <span style="color:#66d9ef">if</span> ((c<span style="color:#f92672">==</span><span style="color:#e6db74">&#39;-&#39;</span>)<span style="color:#f92672">||</span>(c <span style="color:#f92672">&gt;=</span> <span style="color:#e6db74">&#39;0&#39;</span> <span style="color:#f92672">&amp;&amp;</span> c <span style="color:#f92672">&lt;=</span> <span style="color:#e6db74">&#39;9&#39;</span>)<span style="color:#f92672">||</span>(c<span style="color:#f92672">==</span><span style="color:#e6db74">&#39;.&#39;</span>))
+                    {
+                        token.value <span style="color:#f92672">+=</span> c;
+                    }
+                    <span style="color:#66d9ef">else</span>
+                    {
+                        file.seekg(prevCharPos);
+                        <span style="color:#75715e">// std::cout &lt;&lt; c &lt;&lt; std::endl;
+</span><span style="color:#75715e"></span>                    }
+                }
+            }
+        }
+        <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span>(c<span style="color:#f92672">==</span><span style="color:#e6db74">&#39;f&#39;</span>){
+            token.type <span style="color:#f92672">=</span> TOKEN<span style="color:#f92672">::</span>BOOLEAN;
+            token.value <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;False&#34;</span>;
+            file.seekg(<span style="color:#ae81ff">4</span>, std<span style="color:#f92672">::</span>ios_base<span style="color:#f92672">::</span>cur);
+        }
+        <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span>(c<span style="color:#f92672">==</span><span style="color:#e6db74">&#39;t&#39;</span>){
+            token.type <span style="color:#f92672">=</span> TOKEN<span style="color:#f92672">::</span>BOOLEAN;
+            token.value <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;True&#34;</span>;
+            file.seekg(<span style="color:#ae81ff">3</span>, std<span style="color:#f92672">::</span>ios_base<span style="color:#f92672">::</span>cur);
+        }
+        <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span>(c<span style="color:#f92672">==</span><span style="color:#e6db74">&#39;n&#39;</span>){
+            token.type <span style="color:#f92672">=</span> TOKEN<span style="color:#f92672">::</span>NULL_TYPE;
+            file.seekg(<span style="color:#ae81ff">3</span>, std<span style="color:#f92672">::</span>ios_base<span style="color:#f92672">::</span>cur);
+        }
+        <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (c <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;[&#39;</span>)
+        {
+            token.type <span style="color:#f92672">=</span> TOKEN<span style="color:#f92672">::</span>ARRAY_OPEN;
+        }
+        <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (c <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;]&#39;</span>)
+        {
+            token.type <span style="color:#f92672">=</span> TOKEN<span style="color:#f92672">::</span>ARRAY_CLOSE;
+        }
+        <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (c <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;:&#39;</span>)
+        {
+            token.type <span style="color:#f92672">=</span> TOKEN<span style="color:#f92672">::</span>COLON;
+        }
+        <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (c <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;,&#39;</span>)
+        {
+            token.type <span style="color:#f92672">=</span> TOKEN<span style="color:#f92672">::</span>COMMA;
+        }
+        <span style="color:#66d9ef">return</span> token;
+    }
+</code></pre></div>
+.</p>
+<p><em><strong>NOTE</strong></em> that here we&rsquo;re mapping to boolean or null as soon as we encounter &ldquo;f&rdquo; (false) or &ldquo;t&rdquo; (true) or &ldquo;n&rdquo; (null). Ideally, we should validate whether the characters after are also matching. If it is &ldquo;faklse&rdquo;, for example, then it should give an error.</p>
+</li>
+</ul>
+<h2 id="parsing">Parsing</h2>
+<p>The parser class is structured as:
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">JSONParser</span> {
+  std<span style="color:#f92672">::</span>fstream file;
+  std<span style="color:#f92672">::</span>shared_ptr<span style="color:#f92672">&lt;</span>JSON<span style="color:#f92672">::</span>JSONNode<span style="color:#f92672">&gt;</span> root;
+  std<span style="color:#f92672">::</span>unique_ptr<span style="color:#f92672">&lt;</span>JSON<span style="color:#f92672">::</span>JSONNode<span style="color:#f92672">&gt;</span> current;
+  Tokenizer tokenizer;
+
+<span style="color:#66d9ef">public</span><span style="color:#f92672">:</span>
+  JSONParser(<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>string filename) <span style="color:#f92672">:</span> tokenizer(filename) {}
+
+  <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">parse</span>();
+  std<span style="color:#f92672">::</span>shared_ptr<span style="color:#f92672">&lt;</span>JSON<span style="color:#f92672">::</span>JSONNode<span style="color:#f92672">&gt;</span> parseObject();
+  std<span style="color:#f92672">::</span>shared_ptr<span style="color:#f92672">&lt;</span>JSON<span style="color:#f92672">::</span>JSONNode<span style="color:#f92672">&gt;</span> parseString();
+  std<span style="color:#f92672">::</span>shared_ptr<span style="color:#f92672">&lt;</span>JSON<span style="color:#f92672">::</span>JSONNode<span style="color:#f92672">&gt;</span> parseNumber();
+  std<span style="color:#f92672">::</span>shared_ptr<span style="color:#f92672">&lt;</span>JSON<span style="color:#f92672">::</span>JSONNode<span style="color:#f92672">&gt;</span> parseList();
+  std<span style="color:#f92672">::</span>shared_ptr<span style="color:#f92672">&lt;</span>JSON<span style="color:#f92672">::</span>JSONNode<span style="color:#f92672">&gt;</span> parseBoolean();
+  std<span style="color:#f92672">::</span>shared_ptr<span style="color:#f92672">&lt;</span>JSON<span style="color:#f92672">::</span>JSONNode<span style="color:#f92672">&gt;</span> parseNull();
+};
+</code></pre></div>
+The root refers to the root of the JSON tree, and current refers to the node currently being parsed.</p>
+<h3 id="parse-function">Parse Function</h3>
+<p>Now as for the parser, here&rsquo;s the basic logic:</p>
+<ul>
+<li>CURLY_OPEN -&gt; We&rsquo;re parsing a JSON object, call parseObject to parse object</li>
+<li>ARRAY_OPEN -&gt; We&rsquo;re parsing a JSON array, call parseArray to parse array</li>
+<li>STRING -&gt; We&rsquo;re already given the string value by the tokenizer, we just have to assign it to a JSONNode.</li>
+<li>NUMBER, BOOLEAN, NULL_TYPE -&gt; Similar case as STRING</li>
+</ul>
+<p>Initially, root will be null and we&rsquo;ll assign it the initial JSONNode.</p>
+<p>This is implemented in the parse function:
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++">  <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">parse</span>() {
+    std<span style="color:#f92672">::</span>string key <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span>;
+    <span style="color:#66d9ef">while</span> (tokenizer.hasMoreTokens()) {
+      Token token;
+      <span style="color:#66d9ef">try</span> {
+        token <span style="color:#f92672">=</span> tokenizer.getToken();
+        std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> token.toString() <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+        <span style="color:#66d9ef">switch</span> (token.type) {
+        <span style="color:#66d9ef">case</span> TOKEN<span style="color:#f92672">::</span>CURLY_OPEN: {
+          std<span style="color:#f92672">::</span>shared_ptr<span style="color:#f92672">&lt;</span>JSON<span style="color:#f92672">::</span>JSONNode<span style="color:#f92672">&gt;</span> parsedObject <span style="color:#f92672">=</span> parseObject();
+          parsedObject<span style="color:#f92672">-&gt;</span>printNode(<span style="color:#ae81ff">0</span>);
+          <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>root) {
+            root <span style="color:#f92672">=</span> parsedObject;
+          }
+          <span style="color:#66d9ef">break</span>;
+        }
+        <span style="color:#66d9ef">case</span> TOKEN<span style="color:#f92672">::</span>ARRAY_OPEN: {
+          std<span style="color:#f92672">::</span>shared_ptr<span style="color:#f92672">&lt;</span>JSON<span style="color:#f92672">::</span>JSONNode<span style="color:#f92672">&gt;</span> parsedList <span style="color:#f92672">=</span> parseList();
+          <span style="color:#75715e">//parsedList-&gt;printNode(0);
+</span><span style="color:#75715e"></span>          <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>root) {
+            root <span style="color:#f92672">=</span> parsedList;
+          }
+          <span style="color:#66d9ef">break</span>;
+        }
+
+        <span style="color:#66d9ef">case</span> TOKEN<span style="color:#f92672">::</span>STRING: {
+          tokenizer.rollBackToken();
+          std<span style="color:#f92672">::</span>shared_ptr<span style="color:#f92672">&lt;</span>JSON<span style="color:#f92672">::</span>JSONNode<span style="color:#f92672">&gt;</span> parsedString <span style="color:#f92672">=</span> parseString();
+          <span style="color:#75715e">//parsedString-&gt;printNode(0);
+</span><span style="color:#75715e"></span>          <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>root) {
+            root <span style="color:#f92672">=</span> parsedString;
+          }
+          <span style="color:#66d9ef">break</span>;
+        }
+        <span style="color:#66d9ef">case</span> TOKEN<span style="color:#f92672">::</span>NUMBER: {
+          tokenizer.rollBackToken();
+          std<span style="color:#f92672">::</span>shared_ptr<span style="color:#f92672">&lt;</span>JSON<span style="color:#f92672">::</span>JSONNode<span style="color:#f92672">&gt;</span> parsedNumber <span style="color:#f92672">=</span> parseNumber();
+          <span style="color:#75715e">//parsedNumber-&gt;printNode(0);
+</span><span style="color:#75715e"></span>          <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>root) {
+            root <span style="color:#f92672">=</span> parsedNumber;
+          }
+          <span style="color:#66d9ef">break</span>;
+        }
+        
+        <span style="color:#66d9ef">case</span> TOKEN<span style="color:#f92672">::</span>BOOLEAN: {
+            tokenizer.rollBackToken();
+            std<span style="color:#f92672">::</span>shared_ptr<span style="color:#f92672">&lt;</span>JSON<span style="color:#f92672">::</span>JSONNode<span style="color:#f92672">&gt;</span> parsedBoolean <span style="color:#f92672">=</span> parseBoolean();
+            <span style="color:#75715e">//parsedBoolean-&gt;printNode(0);
+</span><span style="color:#75715e"></span>            <span style="color:#66d9ef">break</span>;
+        }
+        }
+      }
+
+      <span style="color:#66d9ef">catch</span> (std<span style="color:#f92672">::</span>logic_error e) {
+        <span style="color:#66d9ef">break</span>;
+      }
+    }
+    <span style="color:#75715e">// assert token not valid
+</span><span style="color:#75715e"></span>  }
+</code></pre></div>
+Now let us look at parseObject, parseList and parseString. The implementations of parseNumber, parseBoolean and parseNull are quite similar to parseString so they aren&rsquo;t covered explicitly. However, you can check them out in the <a href="https://github.com/kishore-ganesh/smolJSON">Github Repo</a>.</p>
+<h3 id="parse-list">Parse List</h3>
+<p>In parseList, what we&rsquo;re basically doing is this:</p>
+<ul>
+<li>First token is ARRAY_OPEN</li>
+<li>Second token should be of the JSON value and should indicate whether it is an object, a list, number, boolean or null. Corressponding to that, we call the appropriate parsing function.</li>
+<li>The next token should either be COMMA or ARRAY_CLOSE. If it is COMMA, we have another JSON value to parse. If it is ARRAY_CLOSE, then we&rsquo;re done.<br>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++">std<span style="color:#f92672">::</span>shared_ptr<span style="color:#f92672">&lt;</span>JSON<span style="color:#f92672">::</span>JSONNode<span style="color:#f92672">&gt;</span> parseList() {
+    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;Parsing List&#34;</span> <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+    std<span style="color:#f92672">::</span>shared_ptr<span style="color:#f92672">&lt;</span>JSON<span style="color:#f92672">::</span>JSONNode<span style="color:#f92672">&gt;</span> node <span style="color:#f92672">=</span> std<span style="color:#f92672">::</span>make_shared<span style="color:#f92672">&lt;</span>JSON<span style="color:#f92672">::</span>JSONNode<span style="color:#f92672">&gt;</span>();
+    JSON<span style="color:#f92672">::</span>JSONList <span style="color:#f92672">*</span>list <span style="color:#f92672">=</span>
+        <span style="color:#66d9ef">new</span> JSON<span style="color:#f92672">::</span>JSONList();
+    <span style="color:#66d9ef">bool</span> hasCompleted <span style="color:#f92672">=</span> false;
+    <span style="color:#66d9ef">while</span> (<span style="color:#f92672">!</span>hasCompleted) {
+      <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>tokenizer.hasMoreTokens()) {
+        <span style="color:#66d9ef">throw</span> std<span style="color:#f92672">::</span>logic_error(<span style="color:#e6db74">&#34;No more tokens&#34;</span>);
+      } <span style="color:#66d9ef">else</span> {
+        Token nextToken <span style="color:#f92672">=</span> tokenizer.getToken();
+        std<span style="color:#f92672">::</span>shared_ptr<span style="color:#f92672">&lt;</span>JSON<span style="color:#f92672">::</span>JSONNode<span style="color:#f92672">&gt;</span> node;
+        <span style="color:#66d9ef">switch</span> (nextToken.type) {
+        <span style="color:#66d9ef">case</span> TOKEN<span style="color:#f92672">::</span>ARRAY_OPEN: {
+          node <span style="color:#f92672">=</span> parseList();
+          <span style="color:#66d9ef">break</span>;
+        }
+        <span style="color:#66d9ef">case</span> TOKEN<span style="color:#f92672">::</span>CURLY_OPEN: {
+          node <span style="color:#f92672">=</span> parseObject();
+          <span style="color:#66d9ef">break</span>;
+        }
+        <span style="color:#66d9ef">case</span> TOKEN<span style="color:#f92672">::</span>STRING: {
+          tokenizer.rollBackToken();
+          node <span style="color:#f92672">=</span> parseString();
+          <span style="color:#66d9ef">break</span>;
+        }
+        <span style="color:#66d9ef">case</span> TOKEN<span style="color:#f92672">::</span>NUMBER: {
+          tokenizer.rollBackToken();
+          node <span style="color:#f92672">=</span> parseNumber();
+          <span style="color:#66d9ef">break</span>;
+        }
+         <span style="color:#66d9ef">case</span> TOKEN<span style="color:#f92672">::</span>BOOLEAN: {
+            tokenizer.rollBackToken();
+            node <span style="color:#f92672">=</span> parseBoolean();
+            <span style="color:#75715e">//parsedBoolean-&gt;printNode(0);
+</span><span style="color:#75715e"></span>            <span style="color:#66d9ef">break</span>;
+
+        }
+         <span style="color:#66d9ef">case</span> TOKEN<span style="color:#f92672">::</span>NULL_TYPE: {
+            node <span style="color:#f92672">=</span> parseNull();
+            <span style="color:#66d9ef">break</span>;
+        }
+        }
+        list<span style="color:#f92672">-&gt;</span>push_back(node);
+        nextToken <span style="color:#f92672">=</span> tokenizer.getToken();
+        <span style="color:#66d9ef">if</span> (nextToken.type <span style="color:#f92672">==</span> TOKEN<span style="color:#f92672">::</span>ARRAY_CLOSE) {
+          hasCompleted <span style="color:#f92672">=</span> true;
+        }
+      }
+    }
+    node<span style="color:#f92672">-&gt;</span>setList(list);
+    <span style="color:#66d9ef">return</span> node;
+  }
+</code></pre></div>
+<em><strong>NOTE</strong></em>: There is some code duplication of the parsing logic between parse, parseList and parseObject. I&rsquo;ll later refactor this out.</li>
+</ul>
+<h3 id="parse-object">Parse Object</h3>
+<p>For parseObject, the logic is:</p>
+<ul>
+<li>First token is CURLY_OPEN</li>
+<li>Next token should be a string (the key)</li>
+<li>The next token should be &lsquo;:&rsquo;</li>
+<li>The next token should be a JSON value. Like in parseList and parse, we delegate the parsing to the appropriate parsing function and then use the JSON node it returns. We then add this JSON node to the map with the above key.</li>
+<li>Next token is either COMMA or CURLY_CLOSE. If it is COMMA, we have another entry to parse. If it is CURLY_CLOSE, we&rsquo;re done.</li>
+</ul>
+<p><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++">std<span style="color:#f92672">::</span>shared_ptr<span style="color:#f92672">&lt;</span>JSON<span style="color:#f92672">::</span>JSONNode<span style="color:#f92672">&gt;</span> parseObject(){
+    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;Parsing object &#34;</span> <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+    std<span style="color:#f92672">::</span>shared_ptr<span style="color:#f92672">&lt;</span>JSON<span style="color:#f92672">::</span>JSONNode<span style="color:#f92672">&gt;</span> node <span style="color:#f92672">=</span> std<span style="color:#f92672">::</span>make_shared<span style="color:#f92672">&lt;</span>JSON<span style="color:#f92672">::</span>JSONNode<span style="color:#f92672">&gt;</span>();
+    JSON<span style="color:#f92672">::</span>JSONObject <span style="color:#f92672">*</span>keyObjectMap <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> JSON<span style="color:#f92672">::</span>JSONObject();
+    <span style="color:#66d9ef">bool</span> hasCompleted <span style="color:#f92672">=</span> false;
+    <span style="color:#66d9ef">while</span> (<span style="color:#f92672">!</span>hasCompleted) {
+      <span style="color:#66d9ef">if</span> (tokenizer.hasMoreTokens()) {
+        Token nextToken <span style="color:#f92672">=</span> tokenizer.getToken();
+        std<span style="color:#f92672">::</span>string key <span style="color:#f92672">=</span> nextToken.value;
+        std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> key <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+        tokenizer.getToken();
+        nextToken <span style="color:#f92672">=</span> tokenizer.getToken();
+        std<span style="color:#f92672">::</span>shared_ptr<span style="color:#f92672">&lt;</span>JSON<span style="color:#f92672">::</span>JSONNode<span style="color:#f92672">&gt;</span> node;
+        <span style="color:#75715e">//std::cout &lt;&lt; nextToken.toString() &lt;&lt; std::endl;
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">switch</span> (nextToken.type) {
+        <span style="color:#66d9ef">case</span> TOKEN<span style="color:#f92672">::</span>STRING: {
+          tokenizer.rollBackToken();
+          (<span style="color:#f92672">*</span>keyObjectMap)[key] <span style="color:#f92672">=</span> parseString();
+          <span style="color:#66d9ef">break</span>;
+        }
+        <span style="color:#66d9ef">case</span> TOKEN<span style="color:#f92672">::</span>ARRAY_OPEN: {
+          (<span style="color:#f92672">*</span>keyObjectMap)[key] <span style="color:#f92672">=</span> parseList();
+          <span style="color:#66d9ef">break</span>;
+        }
+        <span style="color:#66d9ef">case</span> TOKEN<span style="color:#f92672">::</span>NUMBER: {
+          tokenizer.rollBackToken();
+          (<span style="color:#f92672">*</span>keyObjectMap)[key] <span style="color:#f92672">=</span> parseNumber();
+          <span style="color:#66d9ef">break</span>;
+        }
+        <span style="color:#66d9ef">case</span> TOKEN<span style="color:#f92672">::</span>CURLY_OPEN: {
+          (<span style="color:#f92672">*</span>keyObjectMap)[key] <span style="color:#f92672">=</span> parseObject();
+          <span style="color:#66d9ef">break</span>;
+        }
+         <span style="color:#66d9ef">case</span> TOKEN<span style="color:#f92672">::</span>BOOLEAN: {
+            tokenizer.rollBackToken();
+            (<span style="color:#f92672">*</span>keyObjectMap)[key] <span style="color:#f92672">=</span> parseBoolean();
+            <span style="color:#75715e">//parsedBoolean-&gt;printNode(0);
+</span><span style="color:#75715e"></span>            <span style="color:#66d9ef">break</span>;
+
+        }
+         <span style="color:#66d9ef">case</span> TOKEN<span style="color:#f92672">::</span>NULL_TYPE: {
+            (<span style="color:#f92672">*</span>keyObjectMap)[key] <span style="color:#f92672">=</span> parseNull();
+            <span style="color:#66d9ef">break</span>;
+        }
+        }
+        nextToken <span style="color:#f92672">=</span> tokenizer.getToken();
+        <span style="color:#66d9ef">if</span> (nextToken.type <span style="color:#f92672">==</span> TOKEN<span style="color:#f92672">::</span>CURLY_CLOSE) {
+          hasCompleted <span style="color:#f92672">=</span> true;
+          <span style="color:#66d9ef">break</span>;
+        }
+      } <span style="color:#66d9ef">else</span> {
+        <span style="color:#66d9ef">throw</span> std<span style="color:#f92672">::</span>logic_error(<span style="color:#e6db74">&#34;No more tokens&#34;</span>);
+      }
+    }
+    node<span style="color:#f92672">-&gt;</span>setObject(keyObjectMap);
+    <span style="color:#66d9ef">return</span> node;
+  }
+
+ 
+</code></pre></div>
+parseString is very simple, it just needs to map the token type to a JSONNode.
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"> std<span style="color:#f92672">::</span>shared_ptr<span style="color:#f92672">&lt;</span>JSON<span style="color:#f92672">::</span>JSONNode<span style="color:#f92672">&gt;</span> parseString() {
+    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;Parsing String&#34;</span> <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+    std<span style="color:#f92672">::</span>shared_ptr<span style="color:#f92672">&lt;</span>JSON<span style="color:#f92672">::</span>JSONNode<span style="color:#f92672">&gt;</span> node <span style="color:#f92672">=</span> std<span style="color:#f92672">::</span>make_shared<span style="color:#f92672">&lt;</span>JSON<span style="color:#f92672">::</span>JSONNode<span style="color:#f92672">&gt;</span>();
+    Token token <span style="color:#f92672">=</span> tokenizer.getToken();
+    std<span style="color:#f92672">::</span>string <span style="color:#f92672">*</span>sValue <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> std<span style="color:#f92672">::</span>string(token.value);
+    node<span style="color:#f92672">-&gt;</span>setString(sValue);
+    <span style="color:#66d9ef">return</span> node;
+}
+</code></pre></div>
+That&rsquo;s it, we have all the basic elements of a JSON parser!</p>
+<h2 id="back-to-json">Back to JSON</h2>
+<p>Since we have a JSON node that represents our JSON document, let us try going the other way. This&rsquo;ll help us to also verify whether the JSON is parsed correctly.</p>
+<p>The JSONNode::toString function takes in an indentation level. It is the amount by which to offset the child contents.</p>
+<p>We first make a spaceString, which is a string with the number of space characters controlled by the indentation level.</p>
+<p>Then, we check our current node type:</p>
+<ul>
+<li>STRING -&gt; Output directly</li>
+<li>NUMBER -&gt; Output directly</li>
+<li>BOOLEAN -&gt; Output directly</li>
+<li>NULL -&gt; Output directly</li>
+<li>Array -&gt;  Output &lsquo;[&rsquo;. Then call toString again for each JSON value, outputting either &lsquo;,&rsquo; or &lsquo;]&rsquo; after depending on whether it is the last JSON value</li>
+<li>Object -&gt; Output &lsquo;{&rsquo;. Then the key, then &lsquo;:&rsquo;, then append the output of toString for the corressponding jsonValue. Then output &lsquo;}&rsquo;</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++">  std<span style="color:#f92672">::</span>string toString(<span style="color:#66d9ef">int</span> indentationLevel) {
+    std<span style="color:#f92672">::</span>string spaceString <span style="color:#f92672">=</span> std<span style="color:#f92672">::</span>string(indentationLevel, <span style="color:#e6db74">&#39; &#39;</span>);
+    <span style="color:#75715e">//sstreams
+</span><span style="color:#75715e"></span>    std<span style="color:#f92672">::</span>string outputString <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span>;
+    <span style="color:#75715e">// // std::cout &lt; type &lt;&lt; std::endl;
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">switch</span> (type) {
+    <span style="color:#66d9ef">case</span> Type<span style="color:#f92672">::</span>STRING: {
+      outputString <span style="color:#f92672">+=</span> spaceString <span style="color:#f92672">+</span> <span style="color:#f92672">*</span>values.s;
+      <span style="color:#66d9ef">break</span>;
+    }
+    <span style="color:#66d9ef">case</span> Type<span style="color:#f92672">::</span>NUMBER: {
+      outputString <span style="color:#f92672">+=</span> spaceString <span style="color:#f92672">+</span> std<span style="color:#f92672">::</span>to_string(values.fValue);
+      <span style="color:#66d9ef">break</span>;
+    }
+    <span style="color:#66d9ef">case</span> Type<span style="color:#f92672">::</span>BOOLEAN: {
+      outputString <span style="color:#f92672">+=</span> spaceString <span style="color:#f92672">+</span> (values.bValue <span style="color:#f92672">?</span> <span style="color:#e6db74">&#34;true&#34;</span> <span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;false&#34;</span>);
+      <span style="color:#66d9ef">break</span>;
+    }
+    <span style="color:#66d9ef">case</span> Type<span style="color:#f92672">::</span>NULL_TYPE: {
+      outputString <span style="color:#f92672">+=</span> spaceString <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;null&#34;</span>;
+      <span style="color:#66d9ef">break</span>;
+
+    }
+    <span style="color:#66d9ef">case</span> Type<span style="color:#f92672">::</span>LIST: {
+      <span style="color:#75715e">// std::cout &lt;&lt; &#34;[&#34;;
+</span><span style="color:#75715e"></span>      outputString <span style="color:#f92672">+=</span> spaceString <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;[</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
+      <span style="color:#66d9ef">int</span> index <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+      <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span> node : (<span style="color:#f92672">*</span>values.list)) {
+        outputString <span style="color:#f92672">+=</span> node<span style="color:#f92672">-&gt;</span>toString(indentationLevel <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>);
+        <span style="color:#66d9ef">if</span> (index <span style="color:#f92672">&lt;</span> (<span style="color:#f92672">*</span>values.list).size() <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>) {
+          outputString <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;,</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
+        }
+        index<span style="color:#f92672">++</span>;
+      }
+      outputString <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>  <span style="color:#f92672">+</span> spaceString <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;]</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
+      <span style="color:#66d9ef">break</span>;
+    }
+    <span style="color:#66d9ef">case</span> Type<span style="color:#f92672">::</span>OBJECT: {
+      outputString <span style="color:#f92672">+=</span> spaceString <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;{</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
+      <span style="color:#66d9ef">for</span> (JSONObject<span style="color:#f92672">::</span>iterator i <span style="color:#f92672">=</span> (<span style="color:#f92672">*</span>values.object).begin();
+           i <span style="color:#f92672">!=</span> (<span style="color:#f92672">*</span>values.object).end(); i<span style="color:#f92672">++</span>) {
+        outputString <span style="color:#f92672">+=</span> spaceString <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; &#34;</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">+</span> i<span style="color:#f92672">-&gt;</span>first <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;: &#34;</span>;
+        outputString <span style="color:#f92672">+=</span> i<span style="color:#f92672">-&gt;</span>second<span style="color:#f92672">-&gt;</span>toString(indentationLevel <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>);
+        JSONObject<span style="color:#f92672">::</span>iterator next <span style="color:#f92672">=</span> i;
+        next<span style="color:#f92672">++</span>;
+        <span style="color:#66d9ef">if</span> ((next) <span style="color:#f92672">!=</span> (<span style="color:#f92672">*</span>values.object).end()) {
+          outputString <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;,</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
+        }
+        outputString <span style="color:#f92672">+=</span> spaceString <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
+      }
+      outputString <span style="color:#f92672">+=</span> spaceString <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;}&#34;</span>;
+      <span style="color:#66d9ef">return</span> outputString;
+    }
+    }
+  }
+</code></pre></div>
+<p><em><strong>NOTE</strong></em>: For a more efficient implementation, we should take in a stream and output there. This is memory inefficient.</p>
+<p>I ran the parser on a sample JSON, and below is the output after stringifying it from our internal structure.</p>
+<p><img src="/json_output_test.png" alt=""></p>
+<p>Its indentation is a bit janky. I should probably get around to fixing that sometime :).</p>
+<p>I discussed the most important bits and pieces, but if you want to know what it looks like as a whole, you can check out the <a href="https://github.com/kishore-ganesh/smolJSON">Github Repo</a>. I would love it if you can help improve it!</p>
+
+        </p>
+    </div>
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "kishore-ganesh" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+
+    <div class="page-footer">
+        
+    </div>
+
+
+        
+        </div>
+        <footer class="footer-mobile">
+	<div class="social-icons">
+        
+    <a class="social-icon" href="mailto:kishore2912000@gmail.com" target="_blank" rel="noopener" title="Email">
+        <svg width="28px" height="28px" viewBox="0 0 28 28" version="1.1" fill="#ABABAB" xmlns="https://www.w3.org/2000/svg" xmlns:xlink="https://www.w3.org/1999/xlink">
+            <path d="M25.2794292,5.59128519 L14,16.8707144 L2.72057081,5.59128519 C3.06733103,5.30237414 3.51336915,5.12857603 4,5.12857603 L24,5.12857603 C24.4866308,5.12857603 24.932669,5.30237414 25.2794292,5.59128519 Z M25.9956978,6.99633695 C25.998551,7.04004843 26,7.08414302 26,7.12857603 L26,20.871424 C26,21.0798433 25.9681197,21.2808166 25.9089697,21.4697335 L18.7156355,14.2763993 L25.9956978,6.99633695 Z M24.9498374,22.6319215 C24.6672737,22.7846939 24.3437653,22.871424 24,22.871424 L4,22.871424 C3.5268522,22.871424 3.09207889,22.7071233 2.74962118,22.432463 L10.0950247,15.0870594 L13.9848068,18.9768415 L14.1878486,18.7737996 L14.2030419,18.7889929 L17.6549753,15.3370594 L24.9498374,22.6319215 Z M2.00810114,21.0526627 C2.00273908,20.9929669 2,20.9325153 2,20.871424 L2,7.12857603 C2,7.08414302 2.00144896,7.04004843 2.00430222,6.99633695 L9.03436454,14.0263993 L2.00810114,21.0526627 Z"></path>
+        </svg>
+    </a>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <a class="social-icon" href="https://linkedin.com/in/kishore-ganesh" target="_blank" rel="noopener" title="LinkedIn">
+        <svg width="28px" height="28px" viewBox="0 0 28 28" version="1.1" fill="#ABABAB" xmlns="https://www.w3.org/2000/svg" xmlns:xlink="https://www.w3.org/1999/xlink">
+            <path d="M2,3.654102 C2,2.69908141 2.79442509,1.92397846 3.77383592,1.92397846 L24.2261641,1.92397846 C25.2058917,1.92397846 26,2.69908141 26,3.654102 L26,24.3462148 C26,25.3015521 25.2058917,26.0760215 24.2261641,26.0760215 L3.77383592,26.0760215 C2.79442509,26.0760215 2,25.3015521 2,24.3465315 L2,3.65378524 L2,3.654102 Z M9.27526132,22.1415901 L9.27526132,11.2356668 L5.65030092,11.2356668 L5.65030092,22.1415901 L9.27557808,22.1415901 L9.27526132,22.1415901 Z M7.46341463,9.74691162 C8.72727273,9.74691162 9.51409566,8.90940767 9.51409566,7.86284447 C9.49033893,6.79252455 8.72727273,5.97846056 7.48748812,5.97846056 C6.24675325,5.97846056 5.43649034,6.79252455 5.43649034,7.86284447 C5.43649034,8.90940767 6.22299652,9.74691162 7.4396579,9.74691162 L7.46309788,9.74691162 L7.46341463,9.74691162 Z M11.2815965,22.1415901 L14.9062401,22.1415901 L14.9062401,16.0519481 C14.9062401,15.7263225 14.9299968,15.4000634 15.0256573,15.1675641 C15.2876148,14.5159962 15.8840672,13.8416218 16.8856509,13.8416218 C18.1970225,13.8416218 18.7218879,14.8416218 18.7218879,16.3078872 L18.7218879,22.1415901 L22.3465315,22.1415901 L22.3465315,15.8885017 C22.3465315,12.5388027 20.5584416,10.9800443 18.1735825,10.9800443 C16.2182452,10.9800443 15.3595185,12.072854 14.8824834,12.8172315 L14.9065569,12.8172315 L14.9065569,11.2359835 L11.2819132,11.2359835 C11.3291099,12.2591067 11.2815965,22.1419069 11.2815965,22.1419069 L11.2815965,22.1415901 Z"></path>
+        </svg>
+    </a>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+    
+    <a class="social-icon" href="https://github.com/kishore-ganesh" target="_blank" rel="noopener" title="GitHub">
+        <svg width="28px" height="28px" viewBox="0 0 28 28" version="1.1" fill="#ABABAB" xmlns="https://www.w3.org/2000/svg" xmlns:xlink="https://www.w3.org/1999/xlink">
+            <path d="M13.9988029,1.32087331 C6.82105037,1.32087331 1,7.14112562 1,14.3212723 C1,20.0649109 4.72454649,24.9370678 9.89038951,26.6560892 C10.5408085,26.7757983 10.7778323,26.374374 10.7778323,26.0296121 C10.7778323,25.7215609 10.7666595,24.9035493 10.760275,23.8189856 C7.14426471,24.6042767 6.38131925,22.0760223 6.38131925,22.0760223 C5.78995672,20.5740732 4.93762853,20.1742451 4.93762853,20.1742451 C3.75729765,19.3682044 5.02701126,19.3841656 5.02701126,19.3841656 C6.33183953,19.4759425 7.01817121,20.7241085 7.01817121,20.7241085 C8.17775254,22.7104801 10.0611744,22.1366749 10.8017741,21.8038838 C10.919887,20.9643246 11.2558703,20.3913175 11.6269683,20.066507 C8.74038491,19.7385043 5.70536235,18.6228163 5.70536235,13.6413251 C5.70536235,12.2223743 6.21213051,11.0611968 7.04370914,10.1530044 C6.90963504,9.82420367 6.46351945,8.50181809 7.17139875,6.71256734 C7.17139875,6.71256734 8.26234691,6.36301702 10.7459099,8.04532771 C11.78259,7.75642995 12.8950858,7.61277914 14.000399,7.60719272 C15.1049142,7.61277914 16.2166119,7.75642995 17.2548881,8.04532771 C19.736855,6.36301702 20.8262071,6.71256734 20.8262071,6.71256734 C21.5356825,8.50181809 21.0895669,9.82420367 20.9562909,10.1530044 C21.7894656,11.0611968 22.2922435,12.2223743 22.2922435,13.6413251 C22.2922435,18.6355852 19.2524325,19.734514 16.3570705,20.0561322 C16.8231376,20.4575564 17.2389269,21.2508282 17.2389269,22.4638795 C17.2389269,24.2012564 17.2229657,25.603448 17.2229657,26.0296121 C17.2229657,26.3775663 17.4575954,26.7821827 18.116793,26.6552912 C23.2786458,24.9322794 27,20.0633148 27,14.3212723 C27,7.14112562 21.1789496,1.32087331 13.9988029,1.32087331"></path>
+        </svg>
+    </a>
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+</div>
+
+
+
+
+	<div class="footer-mobile-links">
+		<p><a href="https://github.com/kimcc/hugo-theme-noteworthy" target="_blank" rel="noopener">Noteworthy theme</a></p>
+		<span class="divider-bar">|</span>
+		<p><a href="https://gohugo.io" target="_blank" rel="noopener">Built with Hugo</a></p>
+	</div>
+
+	<script src="https://kishoreganesh.com/js/main.min.fa5c2b23e07b5d9bfad267a52b4b24fdb053e6fb7524993383594926a3ac270c.js" integrity="sha256-+lwrI+B7XZv60melK0sk/bBT5vt1JJkzg1lJJqOsJww=" crossorigin="anonymous"></script>
+</footer>
+    </body>
+</html>
