@@ -191,9 +191,9 @@ It is this snippet of code in glibc that summarizes the conditions:</p>
 </li>
 <li>
 <p>If the NODELETE flag is set on the binary - this can be specified in the ELF itself using a linker flag (-z nodelete) or can be a flag for dl_open (RTLD_LAZY). Interestingly, these are not the only cases:
-For example, if you&rsquo;re using C++ and have a templated static or a static inside an inline function, then that symbol is marked as STB_GNU_UNIQUE. Any library containing a symbol with this marker is automatically marked as NODELETE.</p>
+For example, if you&rsquo;re using C++ and have a templated static or a static inside an inline function, then that symbol is marked as <a href="https://gcc.gnu.org/onlinedocs/gcc/Code-Gen-Options.html">STB_GNU_UNIQUE</a>. Any library containing a symbol with this marker is <a href="https://stackoverflow.com/questions/38869657/dlclose-not-unloading-so-file-which-is-linking-to-boost">automatically marked as NODELETE</a>.</p>
 <p>libstdc++.so contains many such symbols, which is why it is marked as NODELETE. This means that once libstdc++.so is loaded into a process&rsquo; address space, it cannot be unloaded even after</p>
-<p>Interestingly, it seems this marker also ignores RTLD_LOCAL when you dl_open a library - it makes</p>
+<p>Interestingly, <a href="https://libc-alpha.sourceware.narkive.com/1dlTiARW/how-should-stb-gnu-unique-binding-interact-with-rtld-local">it seems</a> this marker also ignores the RTLD_LOCAL flag given when you dl_open a library - it will load those symbols globally.</p>
 <p>You can use nm to inspect the binary - if any symbol is marked with &lsquo;u&rsquo; (lowercase), it is marked as STB_GNU_UNIQUE.</p>
 </li>
 <li>
