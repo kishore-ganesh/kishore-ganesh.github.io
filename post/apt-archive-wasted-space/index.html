@@ -2,13 +2,12 @@
 
 <html lang="en-us">
     <head>
-	<meta name="generator" content="Hugo 0.121.1">
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="format-detection" content="telephone=no"/>
 
-    <title>Kishore Ganesh</title>
+    <title>Are Ubuntu APT repositories wasting space? | Kishore Ganesh</title>
     
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -29,8 +28,6 @@
     
     
  
-    
-    <link rel="alternate" type="application/rss+xml" href="https://kishoreganesh.com/index.xml" title="Kishore Ganesh" />
     
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-XZ0EPKXX9Z"></script>
 <script>
@@ -156,127 +153,81 @@ if (!doNotTrack) {
 
         <div id="content" class="content-container">
         
-<div class = "article-content">
-        
-        
-        
-        
-        <article>
-            <h2>
-                <a href="https://kishoreganesh.com/post/apt-archive-wasted-space/">
-                    Are Ubuntu APT repositories wasting space?
-                </a>
-            </h2>
-            <div>
-                <p>Sometime back, I went into a deep rabbit hole. This is a documentation of what I found. Consider the Ubuntu APT repository. I&rsquo;m using the bionic-backports one.
-Each APT registry contains a &lsquo;Release&rsquo; file which is an index of all the files in the repository. There are files listed with their associated archive files (a &lsquo;.gz&rsquo; and a &lsquo;.xz&rsquo; archive).
-Somehow I wondered what gzip options are used to create the archives.</p>
-                
-                <p><a href="/post/apt-archive-wasted-space/">Read more...</a></p>
-                
-            </div>
-            <div class="post-footer">
-            <time>December 10, 2023</time>
 
-            
-            
-            </div> 
-           
-        </article>
-        
-        <article>
-            <h2>
-                <a href="https://kishoreganesh.com/post/why-dl-close-did-not-work/">
-                    Why did dl_close not unload the library?
-                </a>
-            </h2>
-            <div>
-                <p>Recently, at work, we were debugging an issue where dl_close was not unloading the library . You might wonder why that even matters - if your library contains any global symbols, then their state will persist across a dl_open, dl_close sequence. In other words, your library isn&rsquo;t starting from a clean state every time.
-In the case we were debugging, this issue manifested in the following fashion: We had two libraries libA and libB and libA dynamically depends on libB.</p>
-                
-                <p><a href="/post/why-dl-close-did-not-work/">Read more...</a></p>
-                
-            </div>
-            <div class="post-footer">
-            <time>December 9, 2023</time>
+<h1 class="post-title">Are Ubuntu APT repositories wasting space?</h1>
+    
+    <time>December 10, 2023</time>
+    
+    <div>
+        <p>
+        <p>Sometime back, I went into a deep rabbit hole. This is a documentation of what I found. Consider the Ubuntu APT repository. I&rsquo;m using the <a href="http://archive.ubuntu.com/ubuntu/dists/bionic-backports/Release">bionic-backports</a> one.</p>
+<p><img src="/release_file.png" alt="">
+Each APT registry contains a &lsquo;Release&rsquo; file which is an index of all the files in the repository. There are files listed with their associated archive files (a &lsquo;.gz&rsquo; and a &lsquo;.xz&rsquo; archive).</p>
+<p><img src="/universe_binary_amd_64_packages_release.png" alt=""></p>
+<p>Somehow I wondered what gzip options are used to create the archives. Let us focus on the gzip archive (&rsquo;.gz&rsquo;) for now. I extracted the Packages from the Packages.gz present in the repository &amp; attempted to recompress it using a quick <code>gzip -k Packages</code>.</p>
+<p><img src="/md5_sum_Packages.png" alt=""></p>
+<p>The md5sum didn&rsquo;t match. What is it we&rsquo;re missing? I decided to investigate this further on a smaller file.</p>
+<p><img src="/empty_file_release.png" alt="md5sum of an empty gzip file">
+Thankfully, there seemed to be 0 byte files in the &lsquo;Release&rsquo; file which seemed easier to inspect.I don&rsquo;t know much about the motivation behind it, but  they exist presumably to actively indicate that a certain file doesn&rsquo;t exist.  Obviously, all of the hashes of all archives of zero byte files are the same.</p>
+<p>Are the gzip headers 40 bytes?  A quick Google search revealed that a minimal gzip overhead<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>  is merely 20 bytes (header + empty DEFLATE block + checksum++ file size). This piqued my curiosity - where are the extra bytes coming from?</p>
+<p>I first tried the default command: <code>gzip emptyfile</code>. This yielded an archive of size 31 bytes. That in itself was weird - wasn&rsquo;t the overhead supposed to be just 20 bytes?</p>
+<p><img src="/gzip_options.png" alt="">
+Then I discovered that gzip has many other options that may influence the size. So I tried various options:</p>
+<ol>
+<li><code>-n</code> - this makes gzip not store the filename &amp; timestamp in the archive: this was 20 bytes</li>
+<li><code>-r</code> - this makes it &lsquo;rsyncable&rsquo;. It looks like this option is used for just sending the diff of changes. This was also 31 bytes</li>
+</ol>
+<p>Clearly, none of them is yielding a 40 byte archive. I tried various different gzip versions to see if that changes anything, but the checksum remained consistent across versions. I then looked at the archive from the package registry in a hex editor to see what the content could be.</p>
+<p><img src="/hex_empty_Packages.gz.png" alt=""></p>
+<p>Ah - something weird is going on. The 0x1f8b is the magic number for gzip archives. It makes sense for it to be at the beginning of the file, but why is it at the end? And why is it the same sequence repeated - looking at the gzip format, it doesn&rsquo;t seem to mandated by the gzip format.</p>
+<p>Are these sequences present in all files?</p>
+<p><img src="/hex_nonempty_Packages.gz.png" alt=""></p>
+<p>Sure enough, they&rsquo;re even present in an archive for a non-zero size file from the package registry. So somehow the gzip file contained a gzip header at the end of it? This seemed confusing - why doesn&rsquo;t it give an error when you decompress it? That&rsquo;s where an interesting feature of gzip archives comes in - you can concatenate them one after another. During decompression, gzip will extract all archives in the gz file.</p>
+<p>This made sense, the &lsquo;-n&rsquo; option to gzip produces an archive of size 20 bytes for an empty file. Concatenating two such archives together would mean an archive of size 40 bytes.</p>
+<p>Sure enough, the following command executed twice creates an archive of size 40 bytes:
+<code>gzip -nkc empty_file &gt;&gt; empty_file.gz</code></p>
+<p><img src="/empty_file_constructed.png" alt="Concatenating two empty gzip&rsquo;s together"></p>
+<p>with a checksum that matches what we see in the &lsquo;Releases&rsquo; file for an archive compressing a 0 byte file.</p>
+<p>However, if we do it for a non-zero size file, its hash doesn&rsquo;t match the MD5Sum in the apt repositories file. Whilst it is true that there may be multiple ways to compress correctly using gzip, I have tried using random gzip versions, going all the way back to a 1992 release. The hashes are consistent across versions, so I&rsquo;m not sure what is going on there. For reference, I used <code>gzip -kn Package</code>. I even tried varying the compression levels &amp; <code>--rsyncable</code>, but they all yield archives of a different size from that in the Ubuntu repository.</p>
+<p>Meanwhile, this surely seems like a bug, there&rsquo;s an overhead of 20 bytes on all gzip files in the Ubuntu APT repository. Now an overhead of 20 bytes isn&rsquo;t much but it certainly wasn&rsquo;t a quirk I expected to run into :)</p>
+<div class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1">
+<p>Google wasn&rsquo;t very helpful about explaining the 20 byte overhead, but ChatGPT was. I wasn&rsquo;t sure why it was 20 bytes, since the header + checksum + file size was just 18 bytes. ChatGPT explained that an empty DEFLATE block needs to be present&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</div>
 
-            
-            
-            </div> 
-           
-        </article>
-        
-        <article>
-            <h2>
-                <a href="https://kishoreganesh.com/post/writing-a-json-parser-in-cplusplus/">
-                    Writing a simple JSON Parser from scratch in C&#43;&#43;
-                </a>
-            </h2>
-            <div>
-                <p>JSON is one of the most common data interchange formats there is. Thankfully, it is also a pretty simple one. I had written a JSON parser in C++ sometime back, and whilst making it I came across a few decisions that were more involved than I thought they would be. So I have decided to write an article around that JSON Parser. While JSON Parsing is simple, writing one would definitely be useful to build more complex parsers, since the general principles are still present.</p>
-                
-                <p><a href="/post/writing-a-json-parser-in-cplusplus/">Read more...</a></p>
-                
-            </div>
-            <div class="post-footer">
-            <time>April 30, 2021</time>
+        </p>
+    </div>
+    <div id="disqus_thread"></div>
+<script>
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "kishore-ganesh" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 
-            
-            
-            </div> 
-           
-        </article>
-        
-        <article>
-            <h2>
-                <a href="https://kishoreganesh.com/post/programming_languages/">
-                    Taking away control: The dumb programmer and the smart compiler
-                </a>
-            </h2>
-            <div>
-                <p>Good compilers prevent you from shooting yourself in the foot. Today, you have a wide assortment of programming languages to choose from, you can have your pick of paradigm. As a brief detour, the perspective of programmers comes full circle as they move from beginner to slightly experienced to intermediate.
-The beginner is deathly afraid of the differences between programming languages. In the beginning, they stick to one language out of the fear of learning something new.</p>
-                
-                <p><a href="/post/programming_languages/">Read more...</a></p>
-                
-            </div>
-            <div class="post-footer">
-            <time>April 29, 2021</time>
+    
 
-            
-            
-            </div> 
-           
-        </article>
-        
-        <article>
-            <h2>
-                <a href="https://kishoreganesh.com/post/bootup/">
-                    Bootup
-                </a>
-            </h2>
-            <div>
-                <p>A long, long time back, in a galaxy far far away, I was doing the same thing I’m doing right now. Booting up a blog. Genesis. Creation. My older blogs are many years behind me, and now a new journey begins.
-I have witnessed a stark change in how I view blogging, or how I view writing in general over my 4 years of college. More on that in a later post, but I’m excited to embark on this new journey, incorporating the many insights hidden away in some deep dark corner of my Google Keep.</p>
-                
-                <p><a href="/post/bootup/">Read more...</a></p>
-                
-            </div>
-            <div class="post-footer">
-            <time>April 29, 2021</time>
-
-            
-            
-            </div> 
-           
-        </article>
+    <div class="page-footer">
         
     </div>
-        
-        <div class="paginator">
-        
-        
-    </div>
+
 
         
         </div>
