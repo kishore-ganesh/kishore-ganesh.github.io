@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="format-detection" content="telephone=no"/>
 
-    <title>Taking away control: The dumb programmer and the smart compiler | Kishore Ganesh</title>
+    <title>Build arcana | Kishore Ganesh</title>
     
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -54,7 +54,7 @@ if (!doNotTrack) {
   
     <a class="color-link nav-link" href="/about/">About</a>
   
-    <a class="color-link nav-link" href="">Build arcana</a>
+    <a class="color-link nav-link" href="/build_arcana/">Build arcana</a>
   
     <a class="color-link nav-link" href="/resume.pdf">Resume</a>
   
@@ -154,51 +154,114 @@ if (!doNotTrack) {
         <div id="content" class="content-container">
         
 
-<h1 class="post-title">Taking away control: The dumb programmer and the smart compiler</h1>
+<h1 class="post-title">Build arcana</h1>
     
-    <time>April 29, 2021</time>
+    <time>December 10, 2023</time>
     
     <div>
         <p>
-        <p>Good compilers prevent you from shooting yourself in the foot. Today, you have a wide assortment of programming languages to choose from, you can have your pick of paradigm. As a brief detour, the perspective of programmers comes full circle as they move from beginner to slightly experienced to intermediate.</p>
-<p>The beginner is deathly afraid of the differences between programming languages. In the beginning, they stick to one language out of the fear of learning something new.</p>
-<p>Once they become somewhat experienced, they start the proclamation that all languages are really the same, with the only differences being in the syntax. I don’t even know why this idea is all that prevalent, since this completely eschews the notion of some programming languages being better suited to certain ideas than others and puts forth a notion of closed-mindedness where you believe that you know all that you need to know to do something, and everything else is just an unnecessary optimization. Check out Steve Yegge’s blog post: “Being the averagest” for more exposition on this phenomenon.</p>
-<p>The intermediate programmers, which is where my hierarchy of programmers cuts off, come around to realizing that each programming language is really a different set of ideas. Each programming language is more conducive to certain kinds of thinking.</p>
-<p>How do programming languages expose you to new ideas? Ironically, a programming language opens you up to certain kinds of thinking by imposing constraints.</p>
-<p>Each language imposes constraints that mold your thinking in certain ways. This goes beyond syntax, the language could be more hands-on with the bookkeeping the compiler does. Take Rust, for example. The language doesn’t allow you to have two mutable references to the same thing (ignoring the interior mutability pattern for now). The compiler enforces this constraint, and to satisfy this constraint, you have to architect your project in certain ways in order to satisfy that constraint. See? The language influenced the way you think about your project. Just syntax eh?</p>
-<p>In Python, you have a choice. To stick to the style you know and love and to never venture to functional pastures. Or to actually go ahead and learn a new way of thinking. Many are content with the first option, but with a programming language like Haskell, there is no choice. It is much more opinionated, and some projects in it would leave you with a greater understanding of functional ideas which you may even apply when you’re doing projects in other languages.</p>
-<p>The uniting notion behind imposing constraints in the above languages was to shape the way we write code. With assembly, with its gloriously unconstrained nature, you can do pretty much whatever you want. You just have to respect conventions when doing syscalls, but other than that? You can have one function calling convention in some places (using the registers) and something else (just the stack) in other places. Of course, this is obvious, since all programming languages eventually become machine code so that itself “proves” that assembly can support all paradigms of programming.</p>
-<h1 id="deconstructing-a-programming-language">Deconstructing a programming language</h1>
-<p>The main components of a programming language that go into shaping the way you code, to be more concrete are:</p>
-<ol>
-<li>
-<p>The Compiler - This is a pillar of any programming language, and the properties of the compiler greatly inform the way you write code in that language. The compiler is the enforcer of constraints, and the really good ones make full use of the constraints imposed to help out the programmer. Consider Rust, for instance. The memory access constraint imposed by Rust is implemented by the compiler borrow checker, and to satisfy it, you need to rearchitect your application. Then there is Haskell, whose type system is so rich that <a href="https://wiki.haskell.org/GHC/Typed_holes">people often intentionally leave things blank for the compiler to tell them the right type to use</a>. This is an excellent case of the compiler making good use of the constraints imposed by the language to extract more information. Haskell’s compiler is really good at type inference, so a lot of the time you do not have to worry about explicit typing in Haskell.</p>
-</li>
-<li>
-<p>The runtime - Depending on the programming language, it may have either a very bare minimum runtime (like C) or it may be more involved. The runtime in Go for instance manages threads for you. The runtime in Rust checks for out-of-bounds memory accesses or for multiple mutable references in case you’re using the interior mutability pattern. You may even have a garbage collector as part of the runtime. It depends on the runtime whether your language allows reflection.</p>
-</li>
-<li>
-<p>The standard tooling - Other than the compiler, the other tools provided by the language become an important aspect of shaping your experience. Go has an official formatting tool, so you have uniformly formatted Go codebases. It also has a race detector. Another important tool may be the package management story.</p>
-</li>
-<li>
-<p>The standard library - Gone are the days when standard libraries were supposed to be lean and mean. No more fumbling about with different thread libraries on different operating systems. Today, the defacto expectation is to have some sort of networking, threading, file I/O primitives being a part of the standard library.</p>
-</li>
-</ol>
-<h2 id="the-move-towards-more-automatically-managed-resources">The move towards more automatically managed resources</h2>
-<p>In the typical textbook, the typical hierarchy is that assembly is a low-level language, and C is a high-level language. But so is Python, and as is Haskell. The gulf between the lowest level high-level language and the highest level high-level language is massive enough to warrant more fine-grained categorization.</p>
-<p>C is a jump-up from assembly. With C, you have the power of never having to worry about running out of variables. The compiler manages the stack for you, instead of whatever half-assed frankenstein register allocation pattern you came up with. Heck, the compiler goes ahead and does optimizations for you. Could the best assembly programmer who lives and breathes assembly and x86 calling conventions outperform the compiler? Who knows, maybe. Even if he does, what the C compiler does is to bring something within spitting distance of this guy’s performance to the masses, and instantly. Humans are error-prone, and assembly, with no constraints as such makes it extremely easy for you to have an error density that rivals the mass density of neutron stars.</p>
-<p>Where does C falter? Dynamic memory. You manage your own memory. What’s the next step up? Either the language runtime manages memory for you (Aka garbage collection, like Java) or the compiler basically imposes constraints such that it is basically shepherding you back to the “right” way, aka Rust.</p>
-<p>It is a similar case for threading. Like variables, programmers just love threads. They want to parallelize every problem they see. But of course, threads are expensive. So the nifty programmers came up with the idea of a thread pool, where you have a limited set of threads that actually do the work. Many programmers don’t use thread pools or aren’t aware of them. So this is where the power of the programming language gods to shape our code steps in. In Go, the runtime manages the threads. You can create as many Go threads as you want, it is the runtime that is managing the mapping with the OS threads. So in effect, every Go programmer has fast threads, because it is built into the language! The same goes for concurrency primitives.</p>
-<p>For I/O, NodeJS is a good example. Asynchronous I/O isn’t exactly a new idea. Why all this hoopla about asynchronicity in NodeJS? Because the language and its runtime remove friction from doing asynchronous I/O. Most of the standard library and the packages on npm are oriented around asynchronous I/O, and the runtime takes care of the event loop that goes behind asynchronous I/O. So for a new programmer, the easiest thing for them to do would be to use these primitives to do asynchronous I/O. Other languages also support this paradigm but NodeJS makes the choice for you.</p>
-<p>Let’s dive into the deep end of constraints. What does an extremely limited programming language look like? eBPF sounds like a good candidate. eBPF is one of the key kernel developments in recent years and intends to be a way to get quite a bit of the power of a kernel module (monitoring kernel data structures, network packets, observing programs, etc) while being completely safe. eBPF takes this idea of shaping the way you write code to the extreme. You can call a limited set of functions, you cannot have infinite loops, you cannot have uninitialized variables or access memory out of bounds. And your program must terminate within a set timeframe. Most of this stuff seems quite garden variety, but the most important constraint is that all execution paths of your program must be enumerable. You can’t have an exponential number of execution paths, for instance. So your cute program that enumerates all permutations of a string does not satisfy this constraint.</p>
-<p>Why all this hassle? Well, the eBPF bytecode is to be run in kernel, in kernel mode. And it is supposed to be safe. These two conditions are orthogonal to one another, so the eBPF bytecode that you can write is extremely constrained and before running in kernel mode, it is first verified by a verifier. The verifier basically “runs” your code and checks all execution paths to see if all terminate in time or not and that no illegal memory accesses happen. Only once the verifier terminates in a reasonable amount of time does your eBPF code actually do something.</p>
-<p>eBPF, by the constraints imposed by its build infrastructure, is said to be a safe way of writing code that needs to monitor stuff at the kernel level. This is because the end result of satisfying all those constraints is code that is safe to run in the kernel (unless some oversight in eBPF comes into the picture)</p>
-<p>This article came about because I knew that with each programming language I used, I had a very different experience, but I couldn’t quite clearly discern why the programming language made me write code the way it did. Thus began many days of philosophical thought about what a programming language really is and a few observations about how newer languages are more opinionated and manage more things for you. Hopefully, some of it made sense :)</p>
-<p>More things to check out:
-<a href="https://thume.ca/2019/07/14/a-tour-of-metaprogramming-models-for-generics/">A tour of metaprogramming models for generics</a>
-<a href="https://ebpf.io/what-is-ebpf/">eBPF documentation</a>
-<a href="https://news.ycombinator.com/item?id=17187384">WebAssembly Operating System that achieves safety while letting everything run in kernel mode</a>*</p>
-<p>* Note: After Spectre and Meltdown, the software-only operating system is no longer safe.</p>
+        <p>A set of arcana about build tools, linkers, programming languages etc which are probably only useful to me</p>
+<p>&ndash; LD_DEBUG spits out debug information about linkers
+&ndash; cmake &ndash;trace to trace the evaluation of a cmake file
+&ndash; Use LD_PRELOAD + RTLD_NEXT in order to &ldquo;intercept&rdquo; function calls
+&ndash; #include_next to include the next header file match. Similarly RTLD_NEXT
+&ndash; RTLD_LOCAL to restrict symbol leak
+&ndash; Linker version map
+&ndash; Linker symbol map
+&ndash; patchelf to directly modify attributes of an ELF
+&ndash; ELF can be marked as NODELETE to not be deleted on NODELETE
+&ndash; dl_close won&rsquo;t unload a libary if it has any symbols marked as STB_GNU_UNIQUE (&lsquo;u&rsquo; in nm) or have any thread-local destructors registered
+&ndash; sudo apt install package:arch to install package for specific architecture
+&ndash; rpath and runpaths are attributes inside ELF which dictate where it&rsquo;ll search for dynamic libraries
+&ndash; dl_open can be used to implement loadable plugins
+&ndash; Use /proc/pid/maps to find the memory map of a process
+&ndash; gdb -p pid to attach to a running process
+&ndash; lldb &ndash; to forward args. Similarly gdb &ndash;args
+&ndash; &ldquo;directories&rdquo; command in gdb can help set source path
+&ndash; git checkout TAG
+&ndash; cmake libs often parse the verbose output of a compiler to find dependencies
+&ndash; LD_LIBRARY_PATH to add to the linker search path
+&ndash; cargo thinks any directory inside &ldquo;CARGO_HOME&rdquo; is immutable. So it won&rsquo;t detect changes if any dependencies are in there
+&ndash; cargo build script for linker arguments, bindgen, etc
+&ndash; abseil is a useful lib for env, multithreading, etc
+&ndash; apt directories are seemingly wasting space by having an extra gzip header at the end
+&ndash; meson runs serial tests after parallel
+&ndash; git reflog when you mess things up
+&ndash; meson test -C build_dir test_name
+&ndash; dlsym to get a symbol from a handle obtained from dl_open
+&ndash; cmake -D CMAKE_FIND_DEBUG_MODE to see where cmake is searching
+&ndash; QEMU -g to start a gdb server &amp; start debugging code running inside QEMU
+&ndash; dlsym can be used to resolve circular dependencies
+&ndash; push macro and pop macro preprocessor primitives to not pollute the namespace
+&ndash; <strong>attribute</strong> to attach attributes to symbols
+&ndash; weak symbols
+&ndash; fmap a function with multiple arguments then applying it to an applicative is a common pattern (f &lt;$&gt; m1 &lt;<em>&gt; m2 &lt;</em>&gt; m3)
+&ndash; Useful MMAP flags (MAP_PRIVATE to get a private copy, MAP_FIXED for fixed address space mapping)
+&ndash; madvise syscall to pin pages, change policy to huge pages, other usage policies for kernel to optimize, poisoning
+&ndash; mbind to bind to a NUMA node
+&ndash; lspci to list PCI devices
+&ndash; If you&rsquo;re running QEMU under tmux &amp; your prefix binding collidese with QEMU, use prefix+prefix+shortcut (the extra prefix goes through to QEMU)
+&ndash; busybox is a small self contained set of utilites
+&ndash; docker -v volume to share a dir with the container
+&ndash; docker &ndash;platform=arch for a cross arch container
+&ndash; &ldquo;Then what does it mean to &ldquo;give a Linux bridge an IP address&rdquo;? In the Linux implementation, the bridge is not a separate hardware device (like they originally were), it&rsquo;s also accessible from the host itself. That means it acts like a kind of &ldquo;super-ethernet interface&rdquo; with many ports, but packets that go into the kernel or out from this kernel to or from any of these ports reach the Linux OS under a single IP address&rdquo;
+&ndash; ICMP uses IP address of outgoing interface
+&ndash; container_of struct macro to map a field back to a struct
+&ndash; ftrace to trace functions (if you can&rsquo;t see a function, it means it was inlined)
+&ndash; pgrep to find a process by name (useful to do <code>gdb -p $(pgrep proc_name)</code>)
+&ndash; Have exit event in event loop
+&ndash; atexit to register a destructor for the program
+&ndash; setjmp, longjmp to save &amp; restore context
+&ndash; Use decltype in C++ when you don&rsquo;t know the name of a type or when the syntax for expressing a type is cumbersome (looking at you function pointers)
+&ndash; Rust ControlFlow gives a good basis for expressing structure for operations
+&ndash; xargs for mapping many lines to many commandss
+&ndash; stress-ng to stress test program
+&ndash; /sys filesystem contains info about devices
+&ndash; eventfd for being notified on events, userfaultfd to have usersapce pagefault handlers, irqfd&rsquo;s for guest interrupts
+&ndash; % is a wildcard in a makefile
+&ndash; Linux device tree nodes (DTB file) can be used to reserver memory regions
+&ndash; In C++, variables in  anonymous namespaces have static visibility
+&ndash; C++ header functions are implicitly inline
+&ndash; &ldquo;When your lockless algorithm uses many atomics, maybe time to make it use locks&rdquo;
+&ndash; acquire + release ordering for lock acquire relase
+&ndash; lfence forces flush, sfence does not - lfence is serializing
+&ndash; If one side has strong memory ordering, other side can have relaxed memory ordering
+&ndash; gcc and clang  lay out bitfields in opposite orders (!)
+&ndash; .rodata section in ELF to store extra info specific to your toolchain
+&ndash; (Obvious) you can&rsquo;t reassign a reference in C++
+&ndash; View threads in a debugger on attaching process to start debugging deadlocks
+&ndash; PC relative offset in the ELF for relocations
+&ndash; watchpoint in debuggers to debug memory corruption issues
+&ndash; pre-commit run &ndash;files FILES to run on a file (useful after fixing conflicts after a rebase)
+&ndash; When you want to pipe everything to a file use <code>cmd &amp;&gt; file</code>.
+&ndash; When you want to pipe everything into another cmd, use <code>cmd1 &amp;&gt; &gt;(cmd2)</code>
+&ndash; Symbolic versioning
+&ndash; Only lld supports multiple linker scripts
+&ndash; CROSS_COMPILE prefix for specifying PREFIX-toolchain
+&ndash; gcc -DCOMPILE_VAR=var_value
+&ndash; Use if defined() instead of ifdef for proper conditional expressions: eg: if defined(var1) &amp;&amp; !defined(var2)
+&ndash; <code>-Wl,linker_arg=value</code>
+&ndash; <code>-Wl,-rpath</code> to add to rpath when compiling
+&ndash; If soname not present, then clang will link against absolute path
+&ndash; <code>--sysroot</code> for toolchain to cross compile
+&ndash; In RISC-V, auipc+jalr calls are emitted by the compiler, which are then merged together by the linker (called &ldquo;relaxation&rdquo;)
+&ndash; <code>gdb --ex 'cmd'</code> to run commands in gdb from commandline itself
+&ndash; C++ template polymorphism is syntactic (it doesn&rsquo;t matter whether you&rsquo;re calling a functor or a class or a function or a function pointer) &amp; lazy
+&ndash; Use phantom types when using ptr for lifetimes in structs
+&ndash; Mutable references cannot be copied in Rust
+&ndash; <code>git patch</code> apply to apply diffs.
+&ndash; <code>git apply --reverse diff</code> to apply a diff in reverse
+&ndash; <code>git add -p</code> to apply changes at a hunk granularity (i.e less than a file granularity)
+&ndash; <code>strace</code> to trace system calls
+&ndash; Nix can be combined with Docker for smaller images
+&ndash; <code>$?</code> to get error code, &laquo;&lt; to read stdin, $[@a]
+&ndash; apt expects the repository to provide package for all given architectures, so an error in one means that package won&rsquo;t be visible
+&ndash; memfd to provide a memory file that can be shared with another process/etc
+&ndash; (Not sure) If your dependencies load a library using RTLD_LOCAL, there may be multiple versions of the same symbol floating around
+&ndash; objdump to view diassembly, symbols, ELF headers, etc. Similarly readelf
+&ndash; QEMU: <a href="https://spivey.oriel.ox.ac.uk/compilers/Single-stepping_with_QEMU_and_GDB">Single step</a>
+&ndash; <a href="https://karthikkaranth.me/blog/calling-c-code-from-go/">Go runs C code in comments</a>
+&ndash; Choose the right type for your textures when using DirectX shaders, you may inadvertently be clamping values b.w 0 and 1</p>
 
         </p>
     </div>
