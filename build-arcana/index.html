@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="format-detection" content="telephone=no"/>
 
-    <title>Bootup | Kishore Ganesh</title>
+    <title>Build arcana | Kishore Ganesh</title>
     
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -154,17 +154,116 @@ if (!doNotTrack) {
         <div id="content" class="content-container">
         
 
-<h1 class="post-title">Bootup</h1>
+<h1 class="post-title">Build arcana</h1>
     
-    <time>April 29, 2021</time>
+    <time>December 10, 2023</time>
     
     <div>
         <p>
-        <p>A long, long time back, in a galaxy far far away, I was doing the same thing I’m doing right now. Booting up a blog. Genesis. Creation. My older blogs are many years behind me, and now a new journey begins.</p>
-<p>I have witnessed a stark change in how I view blogging, or how I view writing in general over my 4 years of college. More on that in a later post, but I’m excited to embark on this new journey, incorporating the many insights hidden away in some deep dark corner of my Google Keep.</p>
-<p>The irony is that when I was younger and I didn’t have much of my own stance on things, I was a prolific blogger, but during my college years when I actually developed an intuition for how things were and became more informed, my public output was no where to be seen.</p>
-<p>It is time to change that. In my own little corner of the Internet (however cliched that phrase may be, it has a little something to it), I envision sharing things I have learned from my projects, the many hours spent debugging and the many hours spent reading blogs / research papers. I hope you shall find something valuable here!</p>
-<p>P.S If you want to get a glimpse into that alternative universe, check out techgeekforever.wordpress.com, forever encased in a time-freeze capsule from 2016 and Rifting Reality (riftingreality.com), which you can only find on the Internet Archive (archive.org). s</p>
+        <p>A set of arcana about build tools, linkers, programming languages etc which are probably only useful to me</p>
+<ul>
+<li>LD_DEBUG spits out debug information about linkers</li>
+<li>cmake &ndash;trace to trace the evaluation of a cmake file</li>
+<li>Use LD_PRELOAD + RTLD_NEXT in order to &ldquo;intercept&rdquo; function calls</li>
+<li>#include_next to include the next header file match. Similarly RTLD_NEXT</li>
+<li>RTLD_LOCAL to restrict symbol leak</li>
+<li>Linker version map</li>
+<li>Linker symbol map</li>
+<li>patchelf to directly modify attributes of an ELF</li>
+<li>ELF can be marked as NODELETE to not be deleted on NODELETE</li>
+<li>dl_close won&rsquo;t unload a libary if it has any symbols marked as STB_GNU_UNIQUE (&lsquo;u&rsquo; in nm) or have any thread-local destructors registered</li>
+<li>sudo apt install package:arch to install package for specific architecture</li>
+<li>rpath and runpaths are attributes inside ELF which dictate where it&rsquo;ll search for dynamic libraries</li>
+<li>dl_open can be used to implement loadable plugins</li>
+<li>Use /proc/pid/maps to find the memory map of a process</li>
+<li>gdb -p pid to attach to a running process</li>
+<li>lldb &ndash; to forward args. Similarly gdb &ndash;args</li>
+<li>&ldquo;directories&rdquo; command in gdb can help set source path</li>
+<li>git checkout TAG</li>
+<li>cmake libs often parse the verbose output of a compiler to find dependencies</li>
+<li>LD_LIBRARY_PATH to add to the linker search path</li>
+<li>cargo thinks any directory inside &ldquo;CARGO_HOME&rdquo; is immutable. So it won&rsquo;t detect changes if any dependencies are in there</li>
+<li>cargo build script for linker arguments, bindgen, etc</li>
+<li>abseil is a useful lib for env, multithreading, etc</li>
+<li>apt directories are seemingly wasting space by having an extra gzip header at the end</li>
+<li>meson runs serial tests after parallel</li>
+<li>git reflog when you mess things up</li>
+<li>meson test -C build_dir test_name</li>
+<li>dlsym to get a symbol from a handle obtained from dl_open</li>
+<li>cmake -D CMAKE_FIND_DEBUG_MODE to see where cmake is searching</li>
+<li>QEMU -g to start a gdb server &amp; start debugging code running inside QEMU</li>
+<li>dlsym can be used to resolve circular dependencies</li>
+<li>push macro and pop macro preprocessor primitives to not pollute the namespace</li>
+<li><code>__attribute__</code> to attach attributes to symbols</li>
+<li>weak symbols</li>
+<li>fmap a function with multiple arguments then applying it to an applicative is a common pattern (f <code>&lt;$&gt;</code> m1 <code>&lt;*&gt;</code> m2 <code>&lt;*&gt;</code> m3)</li>
+<li>Useful MMAP flags (MAP_PRIVATE to get a private copy, MAP_FIXED for fixed address space mapping)</li>
+<li>madvise syscall to pin pages, change policy to huge pages, other usage policies for kernel to optimize, poisoning</li>
+<li>mbind to bind to a NUMA node</li>
+<li>lspci to list PCI devices</li>
+<li>If you&rsquo;re running QEMU under tmux &amp; your prefix binding collidese with QEMU, use prefix+prefix+shortcut (the extra prefix goes through to QEMU)</li>
+<li>busybox is a small self contained set of utilites</li>
+<li>docker -v volume to share a dir with the container</li>
+<li>docker &ndash;platform=arch for a cross arch container</li>
+<li>&ldquo;Then what does it mean to &ldquo;give a Linux bridge an IP address&rdquo;? In the Linux implementation, the bridge is not a separate hardware device (like they originally were), it&rsquo;s also accessible from the host itself. That means it acts like a kind of &ldquo;super-ethernet interface&rdquo; with many ports, but packets that go into the kernel or out from this kernel to or from any of these ports reach the Linux OS under a single IP address&rdquo;</li>
+<li>ICMP uses IP address of outgoing interface</li>
+<li>container_of struct macro to map a field back to a struct</li>
+<li>ftrace to trace functions (if you can&rsquo;t see a function, it means it was inlined)</li>
+<li>pgrep to find a process by name (useful to do <code>gdb -p $(pgrep proc_name)</code>)</li>
+<li>Have exit event in event loop</li>
+<li>atexit to register a destructor for the program</li>
+<li>setjmp, longjmp to save &amp; restore context</li>
+<li>Use decltype in C++ when you don&rsquo;t know the name of a type or when the syntax for expressing a type is cumbersome (looking at you function pointers)</li>
+<li>Rust ControlFlow gives a good basis for expressing structure for operations</li>
+<li>xargs for mapping many lines to many commandss</li>
+<li>stress-ng to stress test program</li>
+<li>/sys filesystem contains info about devices</li>
+<li>eventfd for being notified on events, userfaultfd to have usersapce pagefault handlers, irqfd&rsquo;s for guest interrupts</li>
+<li>% is a wildcard in a makefile</li>
+<li>Linux device tree nodes (DTB file) can be used to reserver memory regions</li>
+<li>In C++, variables in  anonymous namespaces have static visibility</li>
+<li>C++ header functions are implicitly inline</li>
+<li>&ldquo;When your lockless algorithm uses many atomics, maybe time to make it use locks&rdquo;</li>
+<li>acquire + release ordering for lock acquire relase</li>
+<li>lfence forces flush, sfence does not - lfence is serializing</li>
+<li>If one side has strong memory ordering, other side can have relaxed memory ordering</li>
+<li>gcc and clang  lay out bitfields in opposite orders (!)</li>
+<li>.rodata section in ELF to store extra info specific to your toolchain</li>
+<li>(Obvious) you can&rsquo;t reassign a reference in C++</li>
+<li>View threads in a debugger on attaching process to start debugging deadlocks</li>
+<li>PC relative offset in the ELF for relocations</li>
+<li>watchpoint in debuggers to debug memory corruption issues</li>
+<li>pre-commit run &ndash;files FILES to run on a file (useful after fixing conflicts after a rebase)</li>
+<li>When you want to pipe everything to a file use <code>cmd &amp;&gt; file</code>.</li>
+<li>When you want to pipe everything into another cmd, use <code>cmd1 &amp;&gt; &gt;(cmd2)</code></li>
+<li>Symbolic versioning</li>
+<li>Only lld supports multiple linker scripts</li>
+<li>CROSS_COMPILE prefix for specifying PREFIX-toolchain</li>
+<li>gcc -DCOMPILE_VAR=var_value</li>
+<li>Use if defined() instead of ifdef for proper conditional expressions: eg: if defined(var1) &amp;&amp; !defined(var2)</li>
+<li><code>-Wl,linker_arg=value</code></li>
+<li><code>-Wl,-rpath</code> to add to rpath when compiling</li>
+<li>If soname not present, then clang will link against absolute path</li>
+<li><code>--sysroot</code> for toolchain to cross compile</li>
+<li>In RISC-V, auipc+jalr calls are emitted by the compiler, which are then merged together by the linker (called &ldquo;relaxation&rdquo;)</li>
+<li><code>gdb --ex 'cmd'</code> to run commands in gdb from commandline itself</li>
+<li>C++ template polymorphism is syntactic (it doesn&rsquo;t matter whether you&rsquo;re calling a functor or a class or a function or a function pointer) &amp; lazy</li>
+<li>Use phantom types when using ptr for lifetimes in structs</li>
+<li>Mutable references cannot be copied in Rust</li>
+<li><code>git patch</code> apply to apply diffs.</li>
+<li><code>git apply --reverse diff</code> to apply a diff in reverse</li>
+<li><code>git add -p</code> to apply changes at a hunk granularity (i.e less than a file granularity)</li>
+<li><code>strace</code> to trace system calls</li>
+<li>Nix can be combined with Docker for smaller images</li>
+<li><code>$?</code> to get error code, &laquo;&lt; to read stdin, <code>$[@a]</code></li>
+<li>apt expects the repository to provide package for all given architectures, so an error in one means that package won&rsquo;t be visible</li>
+<li>memfd to provide a memory file that can be shared with another process/etc</li>
+<li>(Not sure) If your dependencies load a library using RTLD_LOCAL, there may be multiple versions of the same symbol floating around</li>
+<li>objdump to view diassembly, symbols, ELF headers, etc. Similarly readelf</li>
+<li>QEMU: <a href="https://spivey.oriel.ox.ac.uk/compilers/Single-stepping_with_QEMU_and_GDB">Single step</a></li>
+<li><a href="https://karthikkaranth.me/blog/calling-c-code-from-go/">Go runs C code in comments</a></li>
+<li>Choose the right type for your textures when using DirectX shaders, you may inadvertently be clamping values (eg: <code>DXGI_FORMAT_R8G8B8A8_UNORM_SRGB</code>)</li>
+</ul>
 
         </p>
     </div>
