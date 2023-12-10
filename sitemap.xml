@@ -1,43 +1,30 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
-  
   <url>
     <loc>https://kishoreganesh.com/</loc>
-    <lastmod>2021-04-30T20:13:12+05:30</lastmod>
-  </url>
-  
-  <url>
+    <lastmod>2023-12-09T23:07:54-08:00</lastmod>
+  </url><url>
     <loc>https://kishoreganesh.com/post/</loc>
-    <lastmod>2021-04-30T20:13:12+05:30</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://kishoreganesh.com/post/writing-a-json-parser-in-cplusplus/</loc>
-    <lastmod>2021-04-30T20:13:12+05:30</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://kishoreganesh.com/post/programming_languages/</loc>
-    <lastmod>2021-04-29T01:40:00+05:30</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://kishoreganesh.com/post/bootup/</loc>
-    <lastmod>2021-04-29T00:58:56+05:30</lastmod>
-  </url>
-  
-  <url>
+    <lastmod>2023-12-09T23:07:54-08:00</lastmod>
+  </url><url>
+    <loc>https://kishoreganesh.com/post/why_dl_close_did_not_work/</loc>
+    <lastmod>2023-12-09T23:07:54-08:00</lastmod>
+  </url><url>
     <loc>https://kishoreganesh.com/about/</loc>
-    <priority>0</priority>
-  </url>
-  
-  <url>
+    <lastmod>2023-12-09T22:01:41-08:00</lastmod>
+  </url><url>
+    <loc>https://kishoreganesh.com/post/writing-a-json-parser-in-cplusplus/</loc>
+    <lastmod>2021-04-30T21:18:05-08:00</lastmod>
+  </url><url>
+    <loc>https://kishoreganesh.com/post/programming_languages/</loc>
+    <lastmod>2021-04-29T22:29:29-08:00</lastmod>
+  </url><url>
+    <loc>https://kishoreganesh.com/post/bootup/</loc>
+    <lastmod>2021-04-29T20:29:29-08:00</lastmod>
+  </url><url>
     <loc>https://kishoreganesh.com/categories/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://kishoreganesh.com/tags/</loc>
   </url>
-  
 </urlset>

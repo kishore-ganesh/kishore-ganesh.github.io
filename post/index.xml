@@ -6,35 +6,35 @@
     <description>Recent content in Posts on Kishore Ganesh</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 30 Apr 2021 20:13:12 +0530</lastBuildDate><atom:link href="https://kishoreganesh.com/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 09 Dec 2023 23:07:54 -0800</lastBuildDate>
+    <atom:link href="https://kishoreganesh.com/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Why did dl_close not unload the library?</title>
+      <link>https://kishoreganesh.com/post/why_dl_close_did_not_work/</link>
+      <pubDate>Sat, 09 Dec 2023 23:07:54 -0800</pubDate>
+      <guid>https://kishoreganesh.com/post/why_dl_close_did_not_work/</guid>
+      <description>Recently, at work, we were debugging an issue where dl_close was not unloading the library . You might wonder why that even matters - if your library contains any global symbols, then their state will persist across a dl_open, dl_close sequence. In other words, your library isn&amp;rsquo;t starting from a clean state every time.&#xA;In the case we were debugging, this issue manifested in the following fashion: We had two libraries libA and libB and libA dynamically depends on libB.</description>
+    </item>
     <item>
       <title>Writing a simple JSON Parser from scratch in C&#43;&#43;</title>
       <link>https://kishoreganesh.com/post/writing-a-json-parser-in-cplusplus/</link>
-      <pubDate>Fri, 30 Apr 2021 20:13:12 +0530</pubDate>
-      
+      <pubDate>Fri, 30 Apr 2021 21:18:05 -0800</pubDate>
       <guid>https://kishoreganesh.com/post/writing-a-json-parser-in-cplusplus/</guid>
       <description>JSON is one of the most common data interchange formats there is. Thankfully, it is also a pretty simple one. I had written a JSON parser in C++ sometime back, and whilst making it I came across a few decisions that were more involved than I thought they would be. So I have decided to write an article around that JSON Parser. While JSON Parsing is simple, writing one would definitely be useful to build more complex parsers, since the general principles are still present.</description>
     </item>
-    
     <item>
       <title>Taking away control: The dumb programmer and the smart compiler</title>
       <link>https://kishoreganesh.com/post/programming_languages/</link>
-      <pubDate>Thu, 29 Apr 2021 01:40:00 +0530</pubDate>
-      
+      <pubDate>Thu, 29 Apr 2021 22:29:29 -0800</pubDate>
       <guid>https://kishoreganesh.com/post/programming_languages/</guid>
-      <description>Good compilers prevent you from shooting yourself in the foot. Today, you have a wide assortment of programming languages to choose from, you can have your pick of paradigm. As a brief detour, the perspective of programmers comes full circle as they move from beginner to slightly experienced to intermediate.
-The beginner is deathly afraid of the differences between programming languages. In the beginning, they stick to one language out of the fear of learning something new.</description>
+      <description>Good compilers prevent you from shooting yourself in the foot. Today, you have a wide assortment of programming languages to choose from, you can have your pick of paradigm. As a brief detour, the perspective of programmers comes full circle as they move from beginner to slightly experienced to intermediate.&#xA;The beginner is deathly afraid of the differences between programming languages. In the beginning, they stick to one language out of the fear of learning something new.</description>
     </item>
-    
     <item>
-      <title>bootup</title>
+      <title>Bootup</title>
       <link>https://kishoreganesh.com/post/bootup/</link>
-      <pubDate>Thu, 29 Apr 2021 00:58:56 +0530</pubDate>
-      
+      <pubDate>Thu, 29 Apr 2021 20:29:29 -0800</pubDate>
       <guid>https://kishoreganesh.com/post/bootup/</guid>
-      <description>A long, long time back, in a galaxy far far away, I was doing the same thing I&amp;rsquo;m doing right now. Booting up a blog. Genesis. Creation. My older blogs are many years behind me, and now a new journey begins.
-I have witnessed a stark change in how I view blogging, or how I view writing in general over my 4 years of college. More on that in a later post, but I&amp;rsquo;m excited to embark on this new journey, incorporating the many insights hidden away in some deep dark corner of my Google Keep.</description>
+      <description>A long, long time back, in a galaxy far far away, I was doing the same thing I’m doing right now. Booting up a blog. Genesis. Creation. My older blogs are many years behind me, and now a new journey begins.&#xA;I have witnessed a stark change in how I view blogging, or how I view writing in general over my 4 years of college. More on that in a later post, but I’m excited to embark on this new journey, incorporating the many insights hidden away in some deep dark corner of my Google Keep.</description>
     </item>
-    
   </channel>
 </rss>
