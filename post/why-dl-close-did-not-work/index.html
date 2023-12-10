@@ -2,13 +2,12 @@
 
 <html lang="en-us">
     <head>
-	<meta name="generator" content="Hugo 0.121.1">
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="format-detection" content="telephone=no"/>
 
-    <title>Kishore Ganesh</title>
+    <title>Why did dl_close not unload the library? | Kishore Ganesh</title>
     
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -29,8 +28,6 @@
     
     
  
-    
-    <link rel="alternate" type="application/rss+xml" href="https://kishoreganesh.com/index.xml" title="Kishore Ganesh" />
     
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-XZ0EPKXX9Z"></script>
 <script>
@@ -156,104 +153,89 @@ if (!doNotTrack) {
 
         <div id="content" class="content-container">
         
-<div class = "article-content">
-        
-        
-        
-        
-        <article>
-            <h2>
-                <a href="https://kishoreganesh.com/post/why-dl-close-did-not-work/">
-                    Why did dl_close not unload the library?
-                </a>
-            </h2>
-            <div>
-                <p>Recently, at work, we were debugging an issue where dl_close was not unloading the library . You might wonder why that even matters - if your library contains any global symbols, then their state will persist across a dl_open, dl_close sequence. In other words, your library isn&rsquo;t starting from a clean state every time.
-In the case we were debugging, this issue manifested in the following fashion: We had two libraries libA and libB and libA dynamically depends on libB.</p>
-                
-                <p><a href="/post/why-dl-close-did-not-work/">Read more...</a></p>
-                
-            </div>
-            <div class="post-footer">
-            <time>December 9, 2023</time>
 
-            
-            
-            </div> 
-           
-        </article>
-        
-        <article>
-            <h2>
-                <a href="https://kishoreganesh.com/post/writing-a-json-parser-in-cplusplus/">
-                    Writing a simple JSON Parser from scratch in C&#43;&#43;
-                </a>
-            </h2>
-            <div>
-                <p>JSON is one of the most common data interchange formats there is. Thankfully, it is also a pretty simple one. I had written a JSON parser in C++ sometime back, and whilst making it I came across a few decisions that were more involved than I thought they would be. So I have decided to write an article around that JSON Parser. While JSON Parsing is simple, writing one would definitely be useful to build more complex parsers, since the general principles are still present.</p>
-                
-                <p><a href="/post/writing-a-json-parser-in-cplusplus/">Read more...</a></p>
-                
-            </div>
-            <div class="post-footer">
-            <time>April 30, 2021</time>
+<h1 class="post-title">Why did dl_close not unload the library?</h1>
+    
+    <time>December 9, 2023</time>
+    
+    <div>
+        <p>
+        <p>Recently, at work, we were debugging an issue where dl_close was not unloading the library . You might wonder why that even matters - if your library contains any global symbols, then their state will persist across a dl_open, dl_close sequence. In other words, your library isn&rsquo;t starting from a clean state every time.</p>
+<p>In the case we were debugging, this issue manifested in the following fashion: We had two libraries libA and libB and libA dynamically depends on libB. When you dl_open libA, it also implicitly loads libB since it is a dependency. But when you dl_close libA, you may expect libA to be unloaded but also libB (since it was brought in purely due to dl_opening libA).</p>
+<p>Instead, what was strangely happening was that libA was being unloaded from the process address space but not libB. The next time you load libA &amp; it talks to libB, libA is starting from a clean slate but libB is not. This caused an initialization function in libB to fail since it was already initialized.</p>
+<p>To give you a little bit more context, libA is a Rust library. libB is a C++ library. We&rsquo;re dl_open&rsquo;ing libA from another C++ codebase progA. What made this issue even more mysterious was that when we turned on logging through an environment variable in libA, the issue stopped happening. Ah, a Heisenbug!</p>
+<p>Skip down to <a href="#the-dl_close-unmap-condition">The dl_close unmap condition</a> if you just want to know about dl_close. But first, the story!</p>
+<h2 id="a-debugging-tale">A debugging tale</h2>
+<p>It all started with some strange symptoms - a Rust construction routine was running multiple times in libA. But it was wrapped in a lazy_static, so it should be only initialized once!</p>
+<p>The suspicion was immediately on the library somehow being loaded multiple times. Though only one copy of the symbols should be present due to the way dl_open works, the various failure cases around visibility (including modes like RTLD_LOCAL) were always a bit confusing to me. We first started by confirming that the addresses of the static in both calls are the same. Normally, if you had two copies of the symbols being updated &amp; out of sync, you would expect the addresses to be different. But the addresses were the same.</p>
+<p>After a couple of false starts, we put a breakpoint in dl_open &amp; lo &amp; behold, the library was indeed being dl_open&rsquo;ed multiple times. That still didn&rsquo;t explain why it was crashing inside the initialization routine in libB.</p>
+<p>Now the next question was whether libA was being dl_close&rsquo;ed between the dl_open called. Indeed, it was. That explains why the static initialization routine was running multiple times - the library had been unloaded &amp; so is starting from a clean slate.</p>
+<p>But surely then all of its dependencies would also be starting from a clean slate? It seems they&rsquo;re not, as libB remembers that it has been initialized.</p>
+<p>I wrote a quick program to confirm this suspicion - all it does is that it dl_open&rsquo;s libA, then calls dl_close on it &amp; tries to obtain a symbol from both libA and libB using dlsym</p>
+<p>The symbol from libA doesn&rsquo;t resolve but the symbol from libB does. This indicates that libA was unloaded but libB was not. Clearly, there&rsquo;s something weird going on.. I later discovered that there&rsquo;s a much easier environment flag (LD_DEBUG) to give this information &amp; much more.</p>
+<p>After reading various Stackoverflow answers, putting the breakpoint in dl_close &amp; tracing through the unload path, I learned some interesting facts about when a library is not unloaded even after dl_close.</p>
+<p><a href="#dl_close_unmap_condition"></a></p>
+<h2 id="the-dl_close-unmap-condition">The dl_close unmap condition</h2>
+<p>Now, POSIX does not guarantee that dl_close  has to unload the library. There&rsquo;s the obvious case where the library is being used by multiple libraries (i.e its ref-count is greater than 1). But what else can prevent a library from being unloaded?
+It is this snippet of code in glibc that summarizes the conditions:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>  <span style="color:#75715e">/* Check whether this object is still used.  */</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">if</span> (l<span style="color:#f92672">-&gt;</span>l_type <span style="color:#f92672">==</span> lt_loaded
+</span></span><span style="display:flex;"><span>	  <span style="color:#f92672">&amp;&amp;</span> l<span style="color:#f92672">-&gt;</span>l_direct_opencount <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>	  <span style="color:#f92672">&amp;&amp;</span> <span style="color:#f92672">!</span>l<span style="color:#f92672">-&gt;</span>l_nodelete_active
+</span></span><span style="display:flex;"><span>	  <span style="color:#75715e">/* See CONCURRENCY NOTES in cxa_thread_atexit_impl.c to know why
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	     acquire is sufficient and correct.  */</span>
+</span></span><span style="display:flex;"><span>	  <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">atomic_load_acquire</span> (<span style="color:#f92672">&amp;</span>l<span style="color:#f92672">-&gt;</span>l_tls_dtor_count) <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>	  <span style="color:#f92672">&amp;&amp;</span> <span style="color:#f92672">!</span>l<span style="color:#f92672">-&gt;</span>l_map_used)
+</span></span></code></pre></div><p>Namely, the library won&rsquo;t be unloaded if:</p>
+<ol>
+<li>
+<p>If the reference count &gt; 1</p>
+</li>
+<li>
+<p>If the NODELETE flag is set on the binary - this can be specified in the ELF itself using a linker flag (-z nodelete) or can be a flag for dl_open (RTLD_LAZY). Interestingly, these are not the only cases:
+For example, if you&rsquo;re using C++ and have a templated static or a static inside an inline function, then that symbol is marked as <a href="https://gcc.gnu.org/onlinedocs/gcc/Code-Gen-Options.html">STB_GNU_UNIQUE</a>. Any library containing a symbol with this marker is <a href="https://stackoverflow.com/questions/38869657/dlclose-not-unloading-so-file-which-is-linking-to-boost">automatically marked as NODELETE</a>.</p>
+<p>libstdc++.so contains many such symbols, which is why it is marked as NODELETE. This means that once libstdc++.so is loaded into a process&rsquo; address space, it cannot be unloaded even after</p>
+<p>Interestingly, <a href="https://libc-alpha.sourceware.narkive.com/1dlTiARW/how-should-stb-gnu-unique-binding-interact-with-rtld-local">it seems</a> this marker also ignores the RTLD_LOCAL flag given when you dl_open a library - it will load those symbols globally.</p>
+<p>You can use nm to inspect the binary - if any symbol is marked with &lsquo;u&rsquo; (lowercase), it is marked as STB_GNU_UNIQUE.</p>
+</li>
+<li>
+<p>If the loaded module has any registered thread local storage destructors - This was actually the reason for the bug. Initially I thought that somehow since libB used libstdc++.so &amp; libstdc++.so was marked as NODELETE due to the presence of STB_GNU_UNIQUE, it somehow propagated over to libB &amp; it too was marked as NODELETE. However, this was not the case - tracing through dl_close showed that it was not marked as NODELETE. However, it had thread local storage destructors registered.</p>
+</li>
+</ol>
+<p>When are thread local storage destructors run? When the thread exits. libB (which was written in C++) was calling into some Rust functions which further called into some Rust library functions, which use thread local storage &amp; so register a thread local storage destructor using <code> __cxa_thread_atexit_impl</code>.</p>
+<p>On issuing <code>dl_close</code> to libA, there&rsquo;s nothing that makes the threads in libB exit. libA doesn&rsquo;t have any such destructors registered so it exits normally, but libB does not as it has pending destructors (which would never run as the thread never exits).</p>
+<p>There&rsquo;s still one more thing - why did it all work when logging was enabled through an environment variable? Well, the crate used for logging by libA (env_logger) actually uses thread local storage &amp; so registers a TLS destructor. So libA also doesn&rsquo;t get unloaded on dl_close, so the shared state of libA &amp; libB are consistent.</p>
+<p>If you&rsquo;re facing similar problems, do use the LD_DEBUG envvar in order to debug the behavior of the dynamic loader. It actually tells you when it loads a library, where it is searching for the library &amp; when it unloads the library. It even tells you if a library is being marked as NODELETE due to some reason. Note that it doesn&rsquo;t tell you anything for thread local storage destructors, so you should put a breakpoint in <code>_dl_close</code> in glibc in order to see whether you have any such destructors registered &amp; pending.</p>
 
-            
-            
-            </div> 
-           
-        </article>
-        
-        <article>
-            <h2>
-                <a href="https://kishoreganesh.com/post/programming_languages/">
-                    Taking away control: The dumb programmer and the smart compiler
-                </a>
-            </h2>
-            <div>
-                <p>Good compilers prevent you from shooting yourself in the foot. Today, you have a wide assortment of programming languages to choose from, you can have your pick of paradigm. As a brief detour, the perspective of programmers comes full circle as they move from beginner to slightly experienced to intermediate.
-The beginner is deathly afraid of the differences between programming languages. In the beginning, they stick to one language out of the fear of learning something new.</p>
-                
-                <p><a href="/post/programming_languages/">Read more...</a></p>
-                
-            </div>
-            <div class="post-footer">
-            <time>April 29, 2021</time>
+        </p>
+    </div>
+    <div id="disqus_thread"></div>
+<script>
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "kishore-ganesh" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 
-            
-            
-            </div> 
-           
-        </article>
-        
-        <article>
-            <h2>
-                <a href="https://kishoreganesh.com/post/bootup/">
-                    Bootup
-                </a>
-            </h2>
-            <div>
-                <p>A long, long time back, in a galaxy far far away, I was doing the same thing I’m doing right now. Booting up a blog. Genesis. Creation. My older blogs are many years behind me, and now a new journey begins.
-I have witnessed a stark change in how I view blogging, or how I view writing in general over my 4 years of college. More on that in a later post, but I’m excited to embark on this new journey, incorporating the many insights hidden away in some deep dark corner of my Google Keep.</p>
-                
-                <p><a href="/post/bootup/">Read more...</a></p>
-                
-            </div>
-            <div class="post-footer">
-            <time>April 29, 2021</time>
+    
 
-            
-            
-            </div> 
-           
-        </article>
+    <div class="page-footer">
         
     </div>
-        
-        <div class="paginator">
-        
-        
-    </div>
+
 
         
         </div>
