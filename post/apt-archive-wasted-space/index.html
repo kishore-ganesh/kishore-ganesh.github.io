@@ -168,16 +168,16 @@ Each APT registry contains a &lsquo;Release&rsquo; file which is an index of all
 <p><img src="/md5_sum_Packages.png" alt=""></p>
 <p>The md5sum didn&rsquo;t match. What is it we&rsquo;re missing? I decided to investigate this further on a smaller file.</p>
 <p><img src="/empty_file_release.png" alt="md5sum of an empty gzip file">
-Thankfully, there seemed to be 0 byte files in the &lsquo;Release&rsquo; file which seemed easier to inspect.I don&rsquo;t know much about the motivation behind it, but  they exist presumably to actively indicate that a certain file doesn&rsquo;t exist.  Obviously, all of the hashes of all archives of zero byte files are the same.</p>
-<p>Are the gzip headers 40 bytes?  A quick Google search revealed that a minimal gzip overhead<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>  is merely 20 bytes (header + empty DEFLATE block + checksum++ file size). This piqued my curiosity - where are the extra bytes coming from?</p>
+Thankfully, there seemed to be 0 byte files in the &lsquo;Release&rsquo; file which seemed easier to inspect. I don&rsquo;t know much about the motivation behind it, but  they exist presumably to actively indicate that a certain file doesn&rsquo;t exist.  Obviously, the hashes of all archives of zero byte files are the same.</p>
+<p>Are the gzip headers 40 bytes?  A quick Google search revealed that a minimal gzip overhead<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>  is merely 20 bytes (header + empty DEFLATE block + checksum+ file size). This piqued my curiosity - where are the extra bytes coming from?</p>
 <p>I first tried the default command: <code>gzip emptyfile</code>. This yielded an archive of size 31 bytes. That in itself was weird - wasn&rsquo;t the overhead supposed to be just 20 bytes?</p>
 <p><img src="/gzip_options.png" alt="">
 Then I discovered that gzip has many other options that may influence the size. So I tried various options:</p>
 <ol>
 <li><code>-n</code> - this makes gzip not store the filename &amp; timestamp in the archive: this was 20 bytes</li>
-<li><code>-r</code> - this makes it &lsquo;rsyncable&rsquo;. It looks like this option is used for just sending the diff of changes. This was also 31 bytes</li>
+<li><code>-r</code> - this makes it &lsquo;rsyncable&rsquo;. It looks like this option is used for making the archive &lsquo;rsync&rsquo; friendly (which allows you to just send the diff of changes instead of the whole thing). This was also 31 bytes</li>
 </ol>
-<p>Clearly, none of them is yielding a 40 byte archive. I tried various different gzip versions to see if that changes anything, but the checksum remained consistent across versions. I then looked at the archive from the package registry in a hex editor to see what the content could be.</p>
+<p>Clearly, none of them is yielding a 40 byte archive. I tried various different gzip versions to see if that changes anything, but the checksum remained consistent across versions. I then looked at the archive from the package repository in a hex editor to see what the content could be.</p>
 <p><img src="/hex_empty_Packages.gz.png" alt=""></p>
 <p>Ah - something weird is going on. The 0x1f8b is the magic number for gzip archives. It makes sense for it to be at the beginning of the file, but why is it at the end? And why is it the same sequence repeated - looking at the gzip format, it doesn&rsquo;t seem to mandated by the gzip format.</p>
 <p>Are these sequences present in all files?</p>
@@ -187,7 +187,7 @@ Then I discovered that gzip has many other options that may influence the size. 
 <p>Sure enough, the following command executed twice creates an archive of size 40 bytes:
 <code>gzip -nkc empty_file &gt;&gt; empty_file.gz</code></p>
 <p><img src="/empty_file_constructed.png" alt="Concatenating two empty gzip&rsquo;s together"></p>
-<p>with a checksum that matches what we see in the &lsquo;Releases&rsquo; file for an archive compressing a 0 byte file.</p>
+<p>This has a checksum that matches what we see in the &lsquo;Releases&rsquo; file for an archive compressing a 0 byte file.</p>
 <p>However, if we do it for a non-zero size file, its hash doesn&rsquo;t match the MD5Sum in the apt repositories file. Whilst it is true that there may be multiple ways to compress correctly using gzip, I have tried using random gzip versions, going all the way back to a 1992 release. The hashes are consistent across versions, so I&rsquo;m not sure what is going on there. For reference, I used <code>gzip -kn Package</code>. I even tried varying the compression levels &amp; <code>--rsyncable</code>, but they all yield archives of a different size from that in the Ubuntu repository.</p>
 <p>Meanwhile, this surely seems like a bug, there&rsquo;s an overhead of 20 bytes on all gzip files in the Ubuntu APT repository. Now an overhead of 20 bytes isn&rsquo;t much but it certainly wasn&rsquo;t a quirk I expected to run into :)</p>
 <div class="footnotes" role="doc-endnotes">
