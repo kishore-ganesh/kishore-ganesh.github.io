@@ -16,11 +16,11 @@
       <description>Sometime back, I went into a deep rabbit hole. This is a documentation of what I found. Consider the Ubuntu APT repository. I&amp;rsquo;m using the bionic-backports one.&#xA;Each APT registry contains a &amp;lsquo;Release&amp;rsquo; file which is an index of all the files in the repository. There are files listed with their associated archive files (a &amp;lsquo;.gz&amp;rsquo; and a &amp;lsquo;.xz&amp;rsquo; archive).&#xA;Somehow I wondered what gzip options are used to create the archives.</description>
     </item>
     <item>
-      <title>Why did dl_close not unload the library?</title>
+      <title>Why did dlclose not unload the library?</title>
       <link>https://kishoreganesh.com/post/why-dl-close-did-not-work/</link>
       <pubDate>Sat, 09 Dec 2023 23:07:54 -0800</pubDate>
       <guid>https://kishoreganesh.com/post/why-dl-close-did-not-work/</guid>
-      <description>Recently, at work, we were debugging an issue where dl_close was not unloading the library . You might wonder why that even matters - if your library contains any global symbols, then their state will persist across a dl_open, dl_close sequence. In other words, your library isn&amp;rsquo;t starting from a clean state every time.&#xA;In the case we were debugging, this issue manifested in the following fashion: We had two libraries libA and libB and libA dynamically depends on libB.</description>
+      <description>Recently, at work, we were debugging an issue where dlclose was not unloading the library . You might wonder why that even matters - if your library contains any global symbols, then their state will persist across a dlopen, dlclose sequence. In other words, your library isn&amp;rsquo;t starting from a clean state every time.&#xA;In the case we were debugging, this issue manifested in the following fashion: We had two libraries libA and libB and libA dynamically depends on libB.</description>
     </item>
     <item>
       <title>Writing a simple JSON Parser from scratch in C&#43;&#43;</title>

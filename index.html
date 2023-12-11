@@ -187,11 +187,11 @@ Somehow I wondered what gzip options are used to create the archives.</p>
         <article>
             <h2>
                 <a href="https://kishoreganesh.com/post/why-dl-close-did-not-work/">
-                    Why did dl_close not unload the library?
+                    Why did dlclose not unload the library?
                 </a>
             </h2>
             <div>
-                <p>Recently, at work, we were debugging an issue where dl_close was not unloading the library . You might wonder why that even matters - if your library contains any global symbols, then their state will persist across a dl_open, dl_close sequence. In other words, your library isn&rsquo;t starting from a clean state every time.
+                <p>Recently, at work, we were debugging an issue where dlclose was not unloading the library . You might wonder why that even matters - if your library contains any global symbols, then their state will persist across a dlopen, dlclose sequence. In other words, your library isn&rsquo;t starting from a clean state every time.
 In the case we were debugging, this issue manifested in the following fashion: We had two libraries libA and libB and libA dynamically depends on libB.</p>
                 
                 <p><a href="/post/why-dl-close-did-not-work/">Read more...</a></p>
