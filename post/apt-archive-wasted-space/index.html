@@ -189,6 +189,9 @@ Then I discovered that gzip has many other options that may influence the size. 
 <p><img src="/empty_file_constructed.png" alt="Concatenating two empty gzip&rsquo;s together"></p>
 <p>This has a checksum that matches what we see in the &lsquo;Releases&rsquo; file for an archive compressing a 0 byte file.</p>
 <p>However, if we do it for a non-zero size file, its hash doesn&rsquo;t match the MD5Sum in the apt repositories file. Whilst it is true that there may be multiple ways to compress correctly using gzip, I have tried using random gzip versions, going all the way back to a 1992 release. The hashes are consistent across versions, so I&rsquo;m not sure what is going on there. For reference, I used <code>gzip -kn Package</code>. I even tried varying the compression levels &amp; <code>--rsyncable</code>, but they all yield archives of a different size from that in the Ubuntu repository.</p>
+<p><strong>UPDATE</strong>: I tried compressing using <code>pigz</code> which is a parallel implementation of gzip. I was able to get an archive of the right size &amp; check sum using it.</p>
+<p><img src="/pigz_gzip_md5sum.png" alt=""></p>
+<p>I ran <code>pigz -kn Package</code> and then added in the empty archive at the end <code>pigz -knc empty_file &gt;&gt; Package.gz</code>.</p>
 <p>Meanwhile, this surely seems like a bug, there&rsquo;s an overhead of 20 bytes on all gzip files in the Ubuntu APT repository. Now an overhead of 20 bytes isn&rsquo;t much but it certainly wasn&rsquo;t a quirk I expected to run into :)</p>
 <div class="footnotes" role="doc-endnotes">
 <hr>
