@@ -175,7 +175,8 @@ if (!doNotTrack) {
 <li>sudo apt install package:arch to install package for specific architecture</li>
 <li>rpath and runpaths are attributes inside ELF which dictate where it&rsquo;ll search for dynamic libraries</li>
 <li>dl_open can be used to implement loadable plugins</li>
-<li>Use /proc/pid/maps to find the memory map of a process</li>
+<li><a href="https://www.ibm.com/docs/en/ztpf/1.1.0.15?topic=targets-procfs-procpidfdinfofdinfo">procFS (mounted at /proc/pid) has info on command used to launch process, env, virtual memory maps, mount points, fds, files</a></li>
+<li>You can use stat on a process fd (<code>stat /proc/pid/fd/4</code>)</li>
 <li>gdb -p pid to attach to a running process</li>
 <li>lldb &ndash; to forward args. Similarly gdb &ndash;args</li>
 <li>&ldquo;directories&rdquo; command in gdb can help set source path</li>
