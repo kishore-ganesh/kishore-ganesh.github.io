@@ -163,6 +163,28 @@ if (!doNotTrack) {
         
         <article>
             <h2>
+                <a href="https://kishoreganesh.com/post/rust-separate-immutable-from-mutable/">
+                    Rust lifetimes: Separate your immutable parts from your mutable parts using RefCell
+                </a>
+            </h2>
+            <div>
+                <p>I recently ran into a Rust lifetimes issue when working on a toy project of mine. The simplified problem is as such: I have a struct Foo which owns a String and has a counter.
+struct Foo { owned_string: String, prefix_index: usize } What I want to do is to implement the Iterator trait for this struct. I want to iterate over all prefixes of this owned string. We might do something like this:</p>
+                
+                <p><a href="/post/rust-separate-immutable-from-mutable/">Read more...</a></p>
+                
+            </div>
+            <div class="post-footer">
+            <time>December 17, 2023</time>
+
+            
+            
+            </div> 
+           
+        </article>
+        
+        <article>
+            <h2>
                 <a href="https://kishoreganesh.com/post/apt-archive-wasted-space/">
                     Are Ubuntu APT repositories wasting space?
                 </a>

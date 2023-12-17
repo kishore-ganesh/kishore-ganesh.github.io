@@ -6,8 +6,15 @@
     <description>Recent content in Posts on Kishore Ganesh</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 10 Dec 2023 07:10:28 -0800</lastBuildDate>
+    <lastBuildDate>Sun, 17 Dec 2023 14:45:55 -0800</lastBuildDate>
     <atom:link href="https://kishoreganesh.com/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Rust lifetimes: Separate your immutable parts from your mutable parts using RefCell</title>
+      <link>https://kishoreganesh.com/post/rust-separate-immutable-from-mutable/</link>
+      <pubDate>Sun, 17 Dec 2023 14:45:55 -0800</pubDate>
+      <guid>https://kishoreganesh.com/post/rust-separate-immutable-from-mutable/</guid>
+      <description>I recently ran into a Rust lifetimes issue when working on a toy project of mine. The simplified problem is as such: I have a struct Foo which owns a String and has a counter.&#xA;struct Foo { owned_string: String, prefix_index: usize } What I want to do is to implement the Iterator trait for this struct. I want to iterate over all prefixes of this owned string. We might do something like this:</description>
+    </item>
     <item>
       <title>Are Ubuntu APT repositories wasting space?</title>
       <link>https://kishoreganesh.com/post/apt-archive-wasted-space/</link>
