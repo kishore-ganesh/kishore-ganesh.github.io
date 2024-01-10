@@ -3,10 +3,13 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://kishoreganesh.com/</loc>
-    <lastmod>2023-12-17T14:45:55-08:00</lastmod>
+    <lastmod>2024-01-10T12:10:32-08:00</lastmod>
   </url><url>
     <loc>https://kishoreganesh.com/post/</loc>
-    <lastmod>2023-12-17T14:45:55-08:00</lastmod>
+    <lastmod>2024-01-10T12:10:32-08:00</lastmod>
+  </url><url>
+    <loc>https://kishoreganesh.com/post/software-complexity-about-making-things-concrete/</loc>
+    <lastmod>2024-01-10T12:10:32-08:00</lastmod>
   </url><url>
     <loc>https://kishoreganesh.com/post/rust-separate-immutable-from-mutable/</loc>
     <lastmod>2023-12-17T14:45:55-08:00</lastmod>

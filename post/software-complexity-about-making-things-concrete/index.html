@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="format-detection" content="telephone=no"/>
 
-    <title>Build arcana | Kishore Ganesh</title>
+    <title>Software Complexity comes from reification of complex domains | Kishore Ganesh</title>
     
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -154,123 +154,101 @@ if (!doNotTrack) {
         <div id="content" class="content-container">
         
 
-<h1 class="post-title">Build arcana</h1>
+<h1 class="post-title">Software Complexity comes from reification of complex domains</h1>
     
-    <time>December 10, 2023</time>
+    <time>January 10, 2024</time>
     
     <div>
         <p>
-        <p>A set of arcana about build tools, linkers, programming languages etc which are probably only useful to me</p>
-<ul>
-<li>LD_DEBUG spits out debug information about linkers</li>
-<li>cmake &ndash;trace to trace the evaluation of a cmake file</li>
-<li>Use LD_PRELOAD + RTLD_NEXT in order to &ldquo;intercept&rdquo; function calls</li>
-<li>#include_next to include the next header file match. Similarly RTLD_NEXT</li>
-<li>RTLD_LOCAL to restrict symbol leak</li>
-<li>Linker version map</li>
-<li>Linker symbol map</li>
-<li>patchelf to directly modify attributes of an ELF</li>
-<li>ELF can be marked as NODELETE to not be deleted on NODELETE</li>
-<li>dl_close won&rsquo;t unload a libary if it has any symbols marked as STB_GNU_UNIQUE (&lsquo;u&rsquo; in nm) or have any thread-local destructors registered</li>
-<li>sudo apt install package:arch to install package for specific architecture</li>
-<li>rpath and runpaths are attributes inside ELF which dictate where it&rsquo;ll search for dynamic libraries</li>
-<li>dl_open can be used to implement loadable plugins</li>
-<li><a href="https://www.ibm.com/docs/en/ztpf/1.1.0.15?topic=targets-procfs-procpidfdinfofdinfo">procFS (mounted at /proc/pid) has info on command used to launch process, env, virtual memory maps, mount points, fds, files</a></li>
-<li>You can use stat on a process fd (<code>stat /proc/pid/fd/4</code>)</li>
-<li>gdb -p pid to attach to a running process</li>
-<li>lldb &ndash; to forward args. Similarly gdb &ndash;args</li>
-<li>&ldquo;directories&rdquo; command in gdb can help set source path</li>
-<li>git checkout TAG</li>
-<li>cmake libs often parse the verbose output of a compiler to find dependencies</li>
-<li>LD_LIBRARY_PATH to add to the linker search path</li>
-<li>cargo thinks any directory inside &ldquo;CARGO_HOME&rdquo; is immutable. So it won&rsquo;t detect changes if any dependencies are in there</li>
-<li>cargo build script for linker arguments, bindgen, etc</li>
-<li>abseil is a useful lib for env, multithreading, etc</li>
-<li>apt directories are seemingly wasting space by having an extra gzip header at the end</li>
-<li>meson runs serial tests after parallel</li>
-<li>git reflog when you mess things up</li>
-<li>meson test -C build_dir test_name</li>
-<li>dlsym to get a symbol from a handle obtained from dl_open</li>
-<li>cmake -D CMAKE_FIND_DEBUG_MODE to see where cmake is searching</li>
-<li>QEMU -g to start a gdb server &amp; start debugging code running inside QEMU</li>
-<li>dlsym can be used to resolve circular dependencies</li>
-<li>push macro and pop macro preprocessor primitives to not pollute the namespace</li>
-<li><code>__attribute__</code> to attach attributes to symbols</li>
-<li>weak symbols</li>
-<li>fmap a function with multiple arguments then applying it to an applicative is a common pattern (f <code>&lt;$&gt;</code> m1 <code>&lt;*&gt;</code> m2 <code>&lt;*&gt;</code> m3)</li>
-<li>Useful MMAP flags (MAP_PRIVATE to get a private copy, MAP_FIXED for fixed address space mapping)</li>
-<li>madvise syscall to pin pages, change policy to huge pages, other usage policies for kernel to optimize, poisoning</li>
-<li>mbind to bind to a NUMA node</li>
-<li>lspci to list PCI devices</li>
-<li>If you&rsquo;re running QEMU under tmux &amp; your prefix binding collidese with QEMU, use prefix+prefix+shortcut (the extra prefix goes through to QEMU)</li>
-<li>busybox is a small self contained set of utilites</li>
-<li>docker -v volume to share a dir with the container</li>
-<li>docker &ndash;platform=arch for a cross arch container</li>
-<li>&ldquo;Then what does it mean to &ldquo;give a Linux bridge an IP address&rdquo;? In the Linux implementation, the bridge is not a separate hardware device (like they originally were), it&rsquo;s also accessible from the host itself. That means it acts like a kind of &ldquo;super-ethernet interface&rdquo; with many ports, but packets that go into the kernel or out from this kernel to or from any of these ports reach the Linux OS under a single IP address&rdquo;</li>
-<li>ICMP uses IP address of outgoing interface</li>
-<li>container_of struct macro to map a field back to a struct</li>
-<li>ftrace to trace functions (if you can&rsquo;t see a function, it means it was inlined)</li>
-<li>pgrep to find a process by name (useful to do <code>gdb -p $(pgrep proc_name)</code>)</li>
-<li>Have exit event in event loop</li>
-<li>atexit to register a destructor for the program</li>
-<li>setjmp, longjmp to save &amp; restore context</li>
-<li>Use decltype in C++ when you don&rsquo;t know the name of a type or when the syntax for expressing a type is cumbersome (looking at you function pointers)</li>
-<li>Rust ControlFlow gives a good basis for expressing structure for operations</li>
-<li>xargs for mapping many lines to many commandss</li>
-<li>stress-ng to stress test program</li>
-<li>/sys filesystem contains info about devices</li>
-<li>eventfd for being notified on events, userfaultfd to have usersapce pagefault handlers, irqfd&rsquo;s for guest interrupts</li>
-<li>% is a wildcard in a makefile</li>
-<li>Linux device tree nodes (DTB file) can be used to reserver memory regions</li>
-<li>In C++, variables in  anonymous namespaces have static visibility</li>
-<li>C++ header functions are implicitly inline</li>
-<li>&ldquo;When your lockless algorithm uses many atomics, maybe time to make it use locks&rdquo;</li>
-<li>acquire + release ordering for lock acquire relase</li>
-<li>lfence forces flush, sfence does not - lfence is serializing</li>
-<li>If one side has strong memory ordering, other side can have relaxed memory ordering</li>
-<li>gcc and clang  lay out bitfields in opposite orders (!)</li>
-<li>.rodata section in ELF to store extra info specific to your toolchain</li>
-<li>(Obvious) you can&rsquo;t reassign a reference in C++</li>
-<li>View threads in a debugger on attaching process to start debugging deadlocks</li>
-<li>PC relative offset in the ELF for relocations</li>
-<li>watchpoint in debuggers to debug memory corruption issues</li>
-<li>pre-commit run &ndash;files FILES to run on a file (useful after fixing conflicts after a rebase)</li>
-<li>When you want to pipe everything to a file use <code>cmd &amp;&gt; file</code>.</li>
-<li>When you want to pipe everything into another cmd, use <code>cmd1 &amp;&gt; &gt;(cmd2)</code></li>
-<li>Symbolic versioning</li>
-<li>Only lld supports multiple linker scripts</li>
-<li>CROSS_COMPILE prefix for specifying PREFIX-toolchain</li>
-<li>gcc -DCOMPILE_VAR=var_value</li>
-<li>Use if defined() instead of ifdef for proper conditional expressions: eg: if defined(var1) &amp;&amp; !defined(var2)</li>
-<li><code>-Wl,linker_arg=value</code></li>
-<li><code>-Wl,-rpath</code> to add to rpath when compiling</li>
-<li>If soname not present, then clang will link against absolute path</li>
-<li><code>--sysroot</code> for toolchain to cross compile</li>
-<li>In RISC-V, auipc+jalr calls are emitted by the compiler, which are then merged together by the linker (called &ldquo;relaxation&rdquo;)</li>
-<li><code>gdb --ex 'cmd'</code> to run commands in gdb from commandline itself</li>
-<li>C++ template polymorphism is syntactic (it doesn&rsquo;t matter whether you&rsquo;re calling a functor or a class or a function or a function pointer) &amp; lazy</li>
-<li>Use phantom types when using ptr for lifetimes in structs</li>
-<li>Mutable references cannot be copied in Rust</li>
-<li><code>git patch</code> apply to apply diffs.</li>
-<li><code>git apply --reverse diff</code> to apply a diff in reverse</li>
-<li><code>git add -p</code> to apply changes at a hunk granularity (i.e less than a file granularity)</li>
-<li><code>strace</code> to trace system calls</li>
-<li>Nix can be combined with Docker for smaller images</li>
-<li><code>$?</code> to get error code, &laquo;&lt; to read stdin, <code>$[@a]</code></li>
-<li>apt expects the repository to provide package for all given architectures, so an error in one means that package won&rsquo;t be visible</li>
-<li>memfd to provide a memory file that can be shared with another process/etc</li>
-<li>(Not sure) If your dependencies load a library using RTLD_LOCAL, there may be multiple versions of the same symbol floating around</li>
-<li>objdump to view diassembly, symbols, ELF headers, etc. Similarly readelf</li>
-<li>QEMU: <a href="https://spivey.oriel.ox.ac.uk/compilers/Single-stepping_with_QEMU_and_GDB">Single step</a></li>
-<li><a href="https://karthikkaranth.me/blog/calling-c-code-from-go/">Go runs C code in comments</a></li>
-<li>Choose the right type for your textures when using DirectX shaders, you may inadvertently be clamping values (eg: <code>DXGI_FORMAT_R8G8B8A8_UNORM_SRGB</code>)</li>
-<li><a href="https://pernos.co/blog/interposition-rtld-local/">&ldquo;RTLD_LOCAL is also transitive, meaning that the DT_NEEDED dependencies of a library opened with RTLD_LOCAL will themselves be loaded as RTLD_LOCAL and not added to the global scope.&rdquo;</a></li>
-<li><a href="https://pernos.co/blog/interposition-rtld-local/">dlsym actually looks at the return address on the stack to determine what the calling ELF object is.</a></li>
-<li>Use LD_PRELOAD + libsegfault.so to get backtraces on segfault without recompiling</li>
-<li>When you have a lock, can use relaxed memory ordering for any other atomics you have</li>
-<li>Compilers have &ndash;save-temps option when you want to inspect the different stages of compilation (macro preprocessing, IR, asm, object files, etc)
-&ndash; Rust has an include_bytes! macro to include the contents of a file as a container of btyes</li>
-</ul>
+        <p>Has this ever happened to you: You come across some piece of software and want to take a look at its source code. You open its codebase and it is sprawling - many layers of abstraction and much more complicated than what you expected. You think you can implement the concept in much fewer lines of code and in a much simpler fashion. If you attempt to do so,  you may get the core concept (the &ldquo;kernel&rdquo;) implemented pretty quickly. But more often than not, as your software molds to occupy the space of the software it is replacing, it&rsquo;ll reach a similar level of complexity.</p>
+<p>Why is that? I think the core-reason is that complexity arises from fleshing out little abstract concepts into full fledged systems. What does that even mean?</p>
+<p>A lot of this stuff is obvious - ultimately your software is a realization of an idea - if the idea/domain it represents is complex - the software becomes complex. However, this is not always the case - sometimes the engineering aspect makes things more complex. The core idea may be simple, but as you flesh out the different engineering corners, you face the complexity. This is because software is ultimately shaped by a working set of ideas you maintain while developing the software. Your software probably has certain engineering goals. These goals may be:</p>
+<ol>
+<li>It should be lock free</li>
+<li>It prioritizes low-latency</li>
+<li>It should have good error-reporting</li>
+<li>It should be a good &ldquo;citizen&rdquo; (relevant when your software interacts with other computers - eg: web scrapers or your TCP/IP stack)</li>
+<li>It should be extremely simple</li>
+<li>It should be allocation free</li>
+<li>It should be able to run in extremely constrained environments</li>
+<li>It shouldn&rsquo;t have any dependencies</li>
+</ol>
+<p>Notice that the scope of these goals varies quite a bit, from implementation details (eg: lock free) to broader ideas. In either case, these goals place constraints on the codebase that ultimately shape what the software looks like. Anything new that you introduce to the codebase, even a common idea, gets shaped into a unique thing as it is weaved through all the constraints and goals that govern your codebase.</p>
+<p>The more detailed your goals-list is, the more complex your software gets. Thus, the inherent software complexity consists of the domain you&rsquo;re working in combined with your engineering goals.</p>
+<p>We can now answer our original question by looking at it through this lens. The reason the software you saw was much more complicated than you expected was probably because either:</p>
+<ol>
+<li>You have a simplistic model of the underlying problem domain, which in turn leads to a simpler implementation (which is however not optimal)</li>
+<li>The project has engineering goals which make the implementation of this simple idea much more complicated.</li>
+</ol>
+<p>Let us now go into some examples by domain to see where simple and complex software differ.</p>
+<h2 id="compilers">Compilers</h2>
+<p>What&rsquo;s a big difference between toy compilers and production compilers? Well, there is the codegen efficiency, but a less thought about one is error-reporting.</p>
+<p>A toy compiler may handle some errors, but it is usually an afterthought. In production compilers, often it is an actively thought about goal that resources are allocated to. It informs a lot of decisions about how the compiler is written - instead of discarding information from the earlier layers, you need to maintain information from earlier layers of the compilers to have good errors in later stages. Production compilers have a much more sophisticated model of errors than toy compilers.</p>
+<p>Another one is economy of file operations. Toy compilers usually just read in the entire file into memory and start compiling it, whereas production compilers are usually much smarter about this. They have entire components dedicated to file management and try to strike a balance between reading too much from the file and memory usage.</p>
+<p>Toy compilers also don&rsquo;t give much thought about compilation speed, but production quality compilers need to care about that. A compiler needs to care even more about this if it is a JIT compiler, since JITs by nature need to compile really fast, even if it it means foregoing some optimizations. This is why you&rsquo;ll often see an entire task submission system implemented within production quality compilers.</p>
+<p>This is a good example of what I want to highlight: The complexity comes from actively thinking about an abstract piece of the process. Production compiler writers have thought a lot about error reporting, compile-time performance, file handling, etc. At a very abstract level, these are doing the same things:</p>
+<p>Load file -&gt; Tokenize -&gt; Parse -&gt; AST Simplification -&gt; IR -&gt; Optimization -&gt; Assembly</p>
+<p>However, the devil is in the details (as you might expect)  - these components are much more flushed out in the production compilers.</p>
+<h1 id="game-engines">Game Engines</h1>
+<p>Consider a game engine and compare it to a simple standalone game. The game itself would have a simple engine hidden inside of it, which does at least the following things:</p>
+<ol>
+<li>A way to load assets</li>
+<li>A game loop</li>
+<li>Physics logic</li>
+</ol>
+<p>A game engine like Unreal or Unity fleshes out these things to a great detail and has abstractions for components that plug into its system.</p>
+<p>Asset management is something that these game engines have have entire teams dedicated to - eg: integrating with other software like Maya, a naming mechanism, etc. Instead of encoding file paths, you may have a system that has flat-naming of assets.</p>
+<p>Physics Engines probably are the most transparent w.r.t the complexity of their underlying domain. Simple games have simple physics models. Games which model really complex worlds and have realistic / complex interactions have complex codebases (not to mention the overarching engineering goals of pushing out as many frames as possible without delays)</p>
+<h2 id="matrix-multiplication">Matrix Multiplication</h2>
+<p>Matrix multiplication has been studied to death. Optimizing matrix multiplication is an excellent case study into how even the simplest things can become very complex as you introduce more and more optimizations.</p>
+<p>Instead of multiplying the whole matrix, you can make use of vector instructions and multiply smaller chunks of the matrix, which then opens a whole can of worms such as the optimal chunking order of matrices and interplay of the various operations with each other.</p>
+<p>Instead of considering one matrix multiplication in isolation, you may consider a pipeline of matrix operations and may try to parallelize different aspects of the pipeline.</p>
+<p>Aspects like memory access, arithmetic operations, etc which were small parts of the naive version become their own subjects of study for a high performance version.</p>
+<h1 id="build-systems">Build systems</h1>
+<p>At the most naive level, you just issue one big compile command with all of your source files. This is obviously inefficient, so you have makefiles that have some mechanism for describing dependencies and independent units. But there&rsquo;s still manual work w.r.t passing flags in a compiler-agnostic fashion, taking care of different architectures, so you have fancier build tools like cmake, meson and bazel which have more involved dependency systems. They introduce a level of abstraction that interfaces with the compiler and  hides the complexity of interacting with multiple compilers and being able to support multiple architectures.</p>
+<p>Better build systems have more sophisticated models of (but not limited to):</p>
+<ol>
+<li>Dependencies</li>
+<li>Compiler flags</li>
+<li>Different kinds of targets (executables vs libraries vs autogenerated files)</li>
+</ol>
+<h1 id="tcpip">TCP/IP</h1>
+<p>Congestion Control is an excellent example of the software trying to play a part in the system outside it.</p>
+<p>A naive implementation of an abstraction over packets may just throw packets out on the network interface and wait for packets back.</p>
+<p>But for being performant, the simplistic model of the network card &amp; the outer network being perfect needs to be refined. Networks can be congested and we need to slow down. They can become uncongested and we can speedup. Thus the performant software is aware of the
+control system aspect of the system it is a part of. It would need to measure how much it sends out and needs to be smart about when it measures and the accuracy with which it measures. Thus, as it reifies its internal model of the world, it becomes more complex, as the underlying system it is interacting with is complex.</p>
+<h1 id="reliability-in-databases">Reliability in databases</h1>
+<p>The TigerBeetle database has an overarching engineering goal of: never. losing. data.</p>
+<p>Many databases have a simplistic model of reliability. They assume that the operating system is perfect that that its syscalls perform correctly. However, research has shown that syscalls typically used to ascertain whether an in-memory file has been written out to disk <a href="https://www.usenix.org/system/files/atc20-rebello.pdf">can sometimes lie to you</a>. Thus a software can be lulled into a false sense of security of having stored data into persistent storage.</p>
+<p>TigerBeetle has a much more sophisticated model of data corruption and actively works to store data redundantly and attempt to detect and restore corruption. This philosophy permeates to all aspects of its code, which boils down to having redundancy and dotting your i&rsquo;s and crossing your t&rsquo;s. This obviously means that the database code that deals with these aspects would be more complicated than something that just assumes that fsync works.</p>
+<h1 id="implementing-a-standard">Implementing a standard</h1>
+<p>Another transparent example of domain complexity is the implementation of standards. If the standard you&rsquo;re implementing is complex, your software becomes complex.</p>
+<p>Example: The C++ standard is huge and <a href="https://rtraba.files.wordpress.com/2015/05/cppturing.pdf">a lot</a> is expected from a standards-compliant compiler, which is why it is really hard to make a fully C++ compliant compiler  - Note that this complexity is purely for standards compliance; making it performant is a whole other goal that in turn contributes a lot to complexity.</p>
+<h1 id="google-borg">Google Borg</h1>
+<p>A lot of the inspiration behind this post comes from an <a href="https://qr.ae/pKDB2o">excellent Quora answer</a> by Onufry Wojtaszczyk who dives into what makes Borg (Google&rsquo;s cluster management system) complex and where that complexity arose from. Here are some snippets, but you should go read that answer in full.</p>
+<blockquote>
+<p>In my experience, most huge systems have:</p>
+<p>Started out with a large, relatively complex, but not huge kernel.
+Grown significantly larger, and locally more complex, due to feature growth.
+Been broadly redesigned several times in large efforts led by senior engineers who understood the majority of the system.</p>
+</blockquote>
+<blockquote>
+<p>Borg, like most complex systems, was initially designed complex, but nowhere near complex as today. It began with a core idea that could be described in a page of text.</p>
+</blockquote>
+<blockquote>
+<p>A large part of what happened later was feature growth. SSD was added as a resource. It turned out that the initial assumption - that if a spinning drive breaks, all workloads that were using this spinning drive should be considered dead - was incorrect, and codepaths to allow surviving disk loss were added. Proactive rescheduling to bin-pack the cell better was added.</p>
+</blockquote>
+<blockquote>
+<p>Additionally, an ecosystem was built around the basic core of the master and the borglet - introspection tools, a configuration language, automation to predict the resource requirements (instead of having people enter them manually in a config), quota management systems, cross-cell scheduling, and many, many more, each one built to address a specific need.</p>
+</blockquote>
+<blockquote>
+<p>Finally, the system was improved as we went. The initial count-everything-once-every-second resource accounting was gradually replaced with kernel-based mechanisms (cgroups). We overhauled error reporting, because our users couldn’t make sense of what they’re seeing. Read-only GUIs were added at both the Borgmaster and Borglet level, and then a separate cross-cell UI was built with improved capabilities.</p>
+</blockquote>
+<blockquote>
+<p>All of these are all major systems or functionalities that expand Borg and make it larger and more complex - but they do not necessarily make it deeper.</p>
+</blockquote>
+<h1 id="too-many-abstractions">Too many abstractions?</h1>
+<p>Of course, this is not to say that software should be complex. We should all strive for simpler software. As Jonathan Blow noted, a lot of software has too many abstractions which makes accomplishing even simple things more involved than they need to be. Complexity should only be introduced if it is needed. The purpose of this blog post was not to make you erect an ivory tower of abstractions, but to help appreciate how there&rsquo;s some inherent level of complexity depending on the problem domain and engineering goals.</p>
 
         </p>
     </div>
