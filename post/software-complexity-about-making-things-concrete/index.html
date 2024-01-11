@@ -180,6 +180,7 @@ if (!doNotTrack) {
 <li>You have a simplistic model of the underlying problem domain, which in turn leads to a simpler implementation (which is however not optimal)</li>
 <li>The project has engineering goals which make the implementation of this simple idea much more complicated.</li>
 </ol>
+<p>In general, often your code is not performant because its underlying model of the hardware is too simplistic (eg: same costs for all memory access operations, single execution unit, etc). Once it is rewritten to use all of the bells and whistles of modern hardware, it is usually more complicated than the simpler version. This level of optimization is usually not needed universally across the codebase, only in the hotspots. Thus, a performant codebase may have different parts which utilize the hardware to different levels (i.e their underlying hardware models vary in fidelity).</p>
 <p>Let us now go into some examples by domain to see where simple and complex software differ.</p>
 <h2 id="compilers">Compilers</h2>
 <p>What&rsquo;s a big difference between toy compilers and production compilers? Well, there is the codegen efficiency, but a less thought about one is error-reporting.</p>
