@@ -269,7 +269,8 @@ if (!doNotTrack) {
 <li>Use LD_PRELOAD + libsegfault.so to get backtraces on segfault without recompiling</li>
 <li>When you have a lock, can use relaxed memory ordering for any other atomics you have</li>
 <li>Compilers have &ndash;save-temps option when you want to inspect the different stages of compilation (macro preprocessing, IR, asm, object files, etc)
-&ndash; Rust has an include_bytes! macro to include the contents of a file as a container of btyes</li>
+&ndash; Rust has an include_bytes! macro to include the contents of a file as a container of bytes
+&ndash; It is undefined behavior to have a trivial infinite loop in C++, whereas it is perfectly legal in C</li>
 </ul>
 
         </p>
