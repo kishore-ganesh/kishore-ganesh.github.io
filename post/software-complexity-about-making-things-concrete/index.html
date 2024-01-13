@@ -199,11 +199,11 @@ if (!doNotTrack) {
 <li>Physics logic</li>
 </ol>
 <p>A game engine like Unreal or Unity fleshes out these things to a great detail and has abstractions for components that plug into its system.</p>
-<p>Asset management is something that these game engines have have entire teams dedicated to - eg: integrating with other software like Maya, a naming mechanism, etc. Instead of encoding file paths, you may have a system that has flat-naming of assets.</p>
+<p>Asset management is something that production game engines have have lots of developer cycles dedicated to - eg: integrating with other software like Maya, flat naming mechanisms, hot-relading ec.</p>
 <p>Physics Engines probably are the most transparent w.r.t the complexity of their underlying domain. Simple games have simple physics models. Games which model really complex worlds and have realistic / complex interactions have complex codebases (not to mention the overarching engineering goals of pushing out as many frames as possible without delays)</p>
 <h2 id="matrix-multiplication">Matrix Multiplication</h2>
 <p>Matrix multiplication has been studied to death. Optimizing matrix multiplication is an excellent case study into how even the simplest things can become very complex as you introduce more and more optimizations.</p>
-<p>Instead of multiplying the whole matrix, you can make use of vector instructions and multiply smaller chunks of the matrix, which then opens a whole can of worms such as the optimal chunking order of matrices and interplay of the various operations with each other.</p>
+<p>Instead of multiplying the whole matrix, you can make use of vector instructions and multiply smaller chunks of the matrix, which then opens a whole can of worms such as the optimal chunking order of matrices and interplay of the various operations (including memory access operations) with each other.</p>
 <p>Instead of considering one matrix multiplication in isolation, you may consider a pipeline of matrix operations and may try to parallelize different aspects of the pipeline.</p>
 <p>Aspects like memory access, arithmetic operations, etc which were small parts of the naive version become their own subjects of study for a high performance version.</p>
 <h1 id="build-systems">Build systems</h1>
